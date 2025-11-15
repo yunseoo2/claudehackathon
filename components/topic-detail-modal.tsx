@@ -319,9 +319,6 @@ export function TopicDetailModal({
                 <Button variant="outline" onClick={onClose} className="rounded-full px-6 bg-white/10 hover:bg-white/20 text-white border-white/20">
                   Close
                 </Button>
-                <Button className="rounded-full bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700 px-6 text-white border-0">
-                  Generate Action Plan
-                </Button>
               </div>
             </div>
           </div>

@@ -73,7 +73,7 @@ export default function RiskGalaxy({ topics, onTopicClick }: RiskGalaxyProps) {
   };
 
   return (
-    <div className="relative w-full h-[800px] bg-gradient-to-b from-black via-gray-900 to-black rounded-3xl border border-white/10 overflow-hidden p-8">
+    <div className="relative w-full h-[800px] bg-gradient-to-b from-black via-gray-900 to-black rounded-3xl border border-white/10 overflow-x-auto overflow-y-auto p-8">
       {/* Background grid */}
       <div className="absolute inset-8 opacity-10 pointer-events-none rounded-3xl overflow-hidden">
         <svg className="w-full h-full">
@@ -86,8 +86,8 @@ export default function RiskGalaxy({ topics, onTopicClick }: RiskGalaxyProps) {
         </svg>
       </div>
 
-      {/* Topic Bubbles */}
-      <div className="relative w-full h-full" style={{ overflow: 'visible' }}>
+      {/* Topic Bubbles - with extra padding for overflow */}
+      <div className="relative w-full h-full min-h-[800px]" style={{ paddingTop: '150px', paddingBottom: '150px', paddingLeft: '150px', paddingRight: '150px' }}>
         {topics.map((topic, index) => {
           const colors = getTopicColor(topic.riskLevel);
           const size = getBubbleSize(topic.riskScore);
@@ -157,18 +157,22 @@ export default function RiskGalaxy({ topics, onTopicClick }: RiskGalaxyProps) {
                   />
                 )}
 
-                {/* Hover tooltip - positioned directly above bubble */}
+                {/* Hover tooltip - smart positioning to stay within viewport */}
                 {hoveredTopic === topic.id && (
                   <motion.div
                     initial={{ opacity: 0, scale: 0.8 }}
                     animate={{ opacity: 1, scale: 1 }}
                     transition={{ duration: 0.15, ease: "easeOut" }}
-                    className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 bg-black/95 backdrop-blur-xl border border-white/20 rounded-xl px-4 py-3 text-white min-w-[220px] pointer-events-none shadow-2xl"
+                    className="fixed bg-black/95 backdrop-blur-xl border border-white/20 rounded-xl px-4 py-3 text-white min-w-[220px] max-w-[280px] pointer-events-none shadow-2xl"
                     style={{
-                      zIndex: 1000,
+                      zIndex: 9999,
+                      left: '50%',
+                      top: position.y < 30 ? 'auto' : `${position.y - 10}%`,
+                      bottom: position.y < 30 ? `${100 - position.y - 10}%` : 'auto',
+                      transform: 'translateX(-50%)',
                     }}
                   >
-                    <h4 className="font-serif text-base font-bold mb-2">{topic.name}</h4>
+                    <h4 className="font-serif text-base font-bold mb-2 break-words">{topic.name}</h4>
                     <div className="space-y-1 text-xs text-gray-300">
                       <div className="flex justify-between gap-3">
                         <span>Risk Score:</span>
@@ -191,8 +195,6 @@ export default function RiskGalaxy({ topics, onTopicClick }: RiskGalaxyProps) {
                         </div>
                       )}
                     </div>
-                    {/* Arrow pointing down to bubble */}
-                    <div className="absolute left-1/2 -translate-x-1/2 -bottom-2 w-4 h-4 bg-black/95 border-b border-r border-white/20 rotate-45" />
                   </motion.div>
                 )}
               </motion.div>

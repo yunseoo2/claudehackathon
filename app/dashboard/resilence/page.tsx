@@ -140,7 +140,7 @@ const MOCK_RISKY_DOCS = [
 
 export default function ResilienceDashboard() {
   const [selectedTopic, setSelectedTopic] = useState<string | null>(null);
-  const [viewMode, setViewMode] = useState<'galaxy' | 'grid'>('galaxy');
+  const [viewMode, setViewMode] = useState<'galaxy' | 'grid'>('grid');
 
   // Fetch real data from API
   const { topics, documents, loading, error, refetch } = useResilienceData();
@@ -417,8 +417,9 @@ export default function ResilienceDashboard() {
       {/* Topic Detail Modal */}
       {selectedTopic && (() => {
         const topic = displayTopics.find((t) => t.id === selectedTopic);
-        // Filter documents by topic name
-        const topicDocuments = displayDocuments.filter((doc) => doc.topic === topic?.name);
+        // Filter documents by topic name - use ALL documents, not just first 5
+        const allDocuments = documents.length > 0 ? documents : displayDocuments;
+        const topicDocuments = allDocuments.filter((doc) => doc.topic === topic?.name);
 
         return (
           <TopicDetailModal
