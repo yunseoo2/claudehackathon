@@ -13,6 +13,7 @@ export interface Document {
   topic?: string;
   owners?: string[];
   busFactor?: number;
+  bus_factor?: number;
   daysSinceUpdate?: number;
 }
 

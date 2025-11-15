@@ -76,25 +76,60 @@ def simulate_departure(db: Session, person_id: int) -> Dict[str, Any]:
 def compute_documents_at_risk(db: Session) -> Dict[str, Any]:
     """Compute a simple risk score per document and per topic.
 
-    Scores are heuristic: higher when owners_count low, staleness high, and critical==True.
+    Scores are heuristic: higher when bus_factor low, staleness high, and critical==True.
+    Bus factor is calculated per topic (number of unique owners for that topic's documents).
     """
     topic_stats = compute_topic_stats(db)
+
+    # Calculate bus factor per topic (unique owners count)
+    topic_bus_factors = {}
+    topics = db.query(models.Topic).all()
+    for topic in topics:
+        unique_owners = set()
+        for doc in topic.documents:
+            if doc.owner_id:
+                unique_owners.add(doc.owner_id)
+        topic_bus_factors[topic.name] = len(unique_owners) if unique_owners else 0
+
     docs = db.query(models.Document).all()
     doc_scores = []
     for d in docs:
-        owners_count = 1 if d.owner_id else 0
         staleness_days = (datetime.utcnow() - d.last_updated).days if d.last_updated else 999
+
+        # Get topic names and bus factor
+        topic_names = [t.name for t in d.topics] if d.topics else []
+        topic_str = topic_names[0] if topic_names else None
+        bus_factor = topic_bus_factors.get(topic_str, 1) if topic_str else 1
+
         score = 0
-        # owner influence
-        if owners_count <= 1:
+        # bus factor influence - lower bus factor = higher risk
+        if bus_factor <= 1:
             score += 40
+        elif bus_factor == 2:
+            score += 20
         # staleness
         score += min(30, staleness_days // 7)
         # critical
         if d.critical:
             score += 30
         score = min(100, score)
-        doc_scores.append({"id": d.id, "title": d.title, "risk_score": score, "owners_count": owners_count, "staleness_days": staleness_days})
+
+        # Get owner info
+        owner_names = []
+        if d.owner:
+            owner_names.append(d.owner.name)
+
+        doc_scores.append({
+            "id": d.id,
+            "title": d.title,
+            "risk_score": score,
+            "owners_count": bus_factor,  # This is actually bus factor now
+            "staleness_days": staleness_days,
+            "critical": d.critical or False,
+            "topic": topic_str,
+            "owners": owner_names,
+            "bus_factor": bus_factor
+        })
 
     # team_resilience_score = inverse of avg risk (simple)
     avg_risk = sum(item["risk_score"] for item in doc_scores) / (len(doc_scores) or 1)

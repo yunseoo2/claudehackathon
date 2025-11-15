@@ -1,6 +1,6 @@
 "use client";
 
-import { X, Users, Calendar, FileText, AlertTriangle, TrendingDown, Lightbulb } from "lucide-react";
+import { X, Users, Calendar, FileText, AlertTriangle, TrendingDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { motion, AnimatePresence } from "framer-motion";
 import RiskBadge from "./dashboard/RiskBadge";
@@ -13,8 +13,9 @@ interface Document {
   owners: string[];
   daysSinceUpdate: number;
   critical: boolean;
-  lastEditor: string;
-  pageViews: number;
+  lastEditor?: string;
+  pageViews?: number;
+  topic?: string;
 }
 
 interface TopicDetailProps {
@@ -22,6 +23,7 @@ interface TopicDetailProps {
   topicName: string;
   riskLevel: string;
   riskScore: number;
+  documents: Document[];
   onClose: () => void;
 }
 
@@ -129,22 +131,20 @@ export function TopicDetailModal({
   topicName,
   riskLevel,
   riskScore,
+  documents,
   onClose,
 }: TopicDetailProps) {
-  const documents = TOPIC_DOCUMENTS[topicId] || [];
+  // Use provided documents or fall back to mock data
+  const displayDocuments = documents.length > 0 ? documents : (TOPIC_DOCUMENTS[topicId] || []);
   const avgBusFactor =
-    documents.reduce((acc, doc) => acc + doc.busFactor, 0) / documents.length;
+    displayDocuments.length > 0
+      ? displayDocuments.reduce((acc, doc) => acc + doc.busFactor, 0) / displayDocuments.length
+      : 0;
   const avgDaysSinceUpdate =
-    documents.reduce((acc, doc) => acc + doc.daysSinceUpdate, 0) /
-    documents.length;
-  const criticalCount = documents.filter((d) => d.critical).length;
-
-  // Mock AI recommendations (would come from Claude API)
-  const recommendations = [
-    `Add a secondary owner to "${documents[0]?.title}" to reduce bus factor`,
-    `Update ${documents.filter(d => d.daysSinceUpdate > 90).length} documents that haven't been modified in over 90 days`,
-    "Consider creating a knowledge transfer session for critical documentation",
-  ];
+    displayDocuments.length > 0
+      ? displayDocuments.reduce((acc, doc) => acc + doc.daysSinceUpdate, 0) / displayDocuments.length
+      : 0;
+  const criticalCount = displayDocuments.filter((d) => d.critical).length;
 
   return (
     <AnimatePresence>
@@ -188,7 +188,7 @@ export function TopicDetailModal({
               />
               <MetricCard
                 label="Documents"
-                value={documents.length.toString()}
+                value={displayDocuments.length.toString()}
                 color="text-white"
               />
               <MetricCard
@@ -208,38 +208,14 @@ export function TopicDetailModal({
         {/* Content */}
         <div className="flex-1 overflow-y-auto">
           <div className="max-w-7xl mx-auto px-8 py-8 space-y-8">
-            {/* AI Recommendations */}
-            <section>
-              <h2 className="font-serif text-2xl font-bold text-white mb-4 flex items-center gap-2">
-                <Lightbulb className="text-cyan-400" size={26} />
-                AI-Powered Recommendations
-              </h2>
-              <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-                {recommendations.map((rec, index) => (
-                  <motion.div
-                    key={index}
-                    className="relative bg-white/5 backdrop-blur-xl border border-white/10 rounded-xl p-5
-                             hover:shadow-2xl hover:shadow-cyan-500/20 hover:border-cyan-500/50 transition-all group overflow-hidden"
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: index * 0.1 }}
-                    whileHover={{ y: -4 }}
-                  >
-                    <div className="absolute inset-0 bg-gradient-to-br from-cyan-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-                    <p className="text-sm text-gray-300 leading-relaxed relative z-10">{rec}</p>
-                  </motion.div>
-                ))}
-              </div>
-            </section>
-
             {/* Documents */}
             <section>
               <h2 className="font-serif text-2xl font-bold text-white mb-4 flex items-center gap-2">
                 <FileText className="text-cyan-400" size={26} />
-                Documents ({documents.length})
+                Documents ({displayDocuments.length})
               </h2>
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-            {documents
+            {displayDocuments
               .sort((a, b) => b.riskScore - a.riskScore)
               .map((doc, index) => (
                 <motion.div
@@ -271,10 +247,12 @@ export function TopicDetailModal({
                           <Calendar className="w-4 h-4" />
                           {doc.daysSinceUpdate}d ago
                         </span>
-                        <span className="flex items-center gap-1">
-                          <FileText className="w-4 h-4" />
-                          {doc.pageViews.toLocaleString()} views
-                        </span>
+                        {doc.pageViews && (
+                          <span className="flex items-center gap-1">
+                            <FileText className="w-4 h-4" />
+                            {doc.pageViews.toLocaleString()} views
+                          </span>
+                        )}
                       </div>
 
                       {/* Owner Avatars */}
@@ -335,7 +313,7 @@ export function TopicDetailModal({
           <div className="max-w-7xl mx-auto px-8 py-6">
             <div className="flex items-center justify-between">
               <div className="text-sm text-gray-400">
-                Showing {documents.length} document{documents.length !== 1 ? "s" : ""} • {criticalCount} critical
+                Showing {displayDocuments.length} document{displayDocuments.length !== 1 ? "s" : ""} • {criticalCount} critical
               </div>
               <div className="flex gap-3">
                 <Button variant="outline" onClick={onClose} className="rounded-full px-6 bg-white/10 hover:bg-white/20 text-white border-white/20">

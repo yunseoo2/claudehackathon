@@ -6,6 +6,9 @@ import {
   Users,
   Calendar,
   CheckCircle,
+  Loader2,
+  RefreshCw,
+  AlertCircle,
 } from "lucide-react";
 import { TopicDetailModal } from "@/components/topic-detail-modal";
 import TeamRiskChart from "@/components/dashboard/TeamRiskChart";
@@ -15,6 +18,7 @@ import Aurora from "@/components/Aurora";
 import RiskCounter from "@/components/dashboard/RiskCounter";
 import RiskGalaxy from "@/components/dashboard/RiskGalaxy";
 import TopicRadarChart from "@/components/dashboard/TopicRadarChart";
+import { useResilienceData } from "@/hooks/useResilienceData";
 
 // Mock topic data - replace with actual data from your backend
 const MOCK_TOPICS = [
@@ -138,9 +142,16 @@ export default function ResilienceDashboard() {
   const [selectedTopic, setSelectedTopic] = useState<string | null>(null);
   const [viewMode, setViewMode] = useState<'galaxy' | 'grid'>('galaxy');
 
-  const highRiskTopics = MOCK_TOPICS.filter((t) => t.riskLevel === "high").length;
-  const mediumRiskTopics = MOCK_TOPICS.filter((t) => t.riskLevel === "medium").length;
-  const lowRiskTopics = MOCK_TOPICS.filter((t) => t.riskLevel === "low").length;
+  // Fetch real data from API
+  const { topics, documents, loading, error, refetch } = useResilienceData();
+
+  // Use real data if available, fallback to mock data
+  const displayTopics = topics.length > 0 ? topics : MOCK_TOPICS;
+  const displayDocuments = documents.length > 0 ? documents.slice(0, 5) : MOCK_RISKY_DOCS;
+
+  const highRiskTopics = displayTopics.filter((t) => t.riskLevel === "high").length;
+  const mediumRiskTopics = displayTopics.filter((t) => t.riskLevel === "medium").length;
+  const lowRiskTopics = displayTopics.filter((t) => t.riskLevel === "low").length;
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-[#0A0A0F] via-[#121218] to-[#0A0A0F] relative overflow-hidden">
@@ -177,6 +188,45 @@ export default function ResilienceDashboard() {
             Monitoring organizational knowledge fragility through AI-powered visual analytics
           </p>
         </motion.div>
+
+        {/* Loading State */}
+        {loading && (
+          <motion.div
+            className="flex flex-col items-center justify-center py-20 space-y-4"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+          >
+            <Loader2 className="w-12 h-12 text-cyan-400 animate-spin" />
+            <p className="text-gray-300 text-lg">Loading resilience data...</p>
+          </motion.div>
+        )}
+
+        {/* Error State */}
+        {error && !loading && (
+          <motion.div
+            className="bg-red-500/10 border border-red-500/30 rounded-xl p-6 flex items-start gap-4"
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+          >
+            <AlertCircle className="w-6 h-6 text-red-400 flex-shrink-0 mt-0.5" />
+            <div className="flex-1">
+              <h3 className="text-red-300 font-semibold mb-1">Connection Error</h3>
+              <p className="text-red-200/80 text-sm mb-3">
+                Unable to fetch data from backend: {error}
+              </p>
+              <p className="text-red-200/60 text-xs mb-3">
+                Make sure the backend server is running at http://localhost:8000
+              </p>
+              <button
+                onClick={refetch}
+                className="flex items-center gap-2 bg-red-500/20 hover:bg-red-500/30 border border-red-500/40 text-red-300 px-4 py-2 rounded-lg text-sm font-medium transition-all"
+              >
+                <RefreshCw className="w-4 h-4" />
+                Retry Connection
+              </button>
+            </div>
+          </motion.div>
+        )}
 
         {/* Odometer-style Risk Counters */}
         <motion.div
@@ -218,10 +268,10 @@ export default function ResilienceDashboard() {
 
           <div className="grid grid-cols-1 lg:grid-cols-[400px_1fr] gap-6">
             {/* Radar Chart */}
-            <TopicRadarChart topics={MOCK_TOPICS} />
+            <TopicRadarChart topics={displayTopics} />
 
             {/* Leaderboard */}
-            <TeamRiskChart teams={MOCK_TOPICS} />
+            <TeamRiskChart teams={displayTopics} />
           </div>
         </div>
 
@@ -273,9 +323,9 @@ export default function ResilienceDashboard() {
           </div>
 
           {viewMode === 'galaxy' ? (
-            <RiskGalaxy topics={MOCK_TOPICS} onTopicClick={setSelectedTopic} />
+            <RiskGalaxy topics={displayTopics} onTopicClick={setSelectedTopic} />
           ) : (
-            <TopicHeatmap topics={MOCK_TOPICS} onTopicClick={setSelectedTopic} />
+            <TopicHeatmap topics={displayTopics} onTopicClick={setSelectedTopic} />
           )}
         </motion.div>
 
@@ -291,7 +341,7 @@ export default function ResilienceDashboard() {
           </motion.h2>
 
           <div className="space-y-4">
-            {MOCK_RISKY_DOCS.map((doc, index) => (
+            {displayDocuments.map((doc, index) => (
               <motion.div
                 key={doc.id}
                 className="bg-gradient-to-r from-white/5 to-white/10 backdrop-blur-xl border border-white/10
@@ -365,21 +415,22 @@ export default function ResilienceDashboard() {
       </div>
 
       {/* Topic Detail Modal */}
-      {selectedTopic && (
-        <TopicDetailModal
-          topicId={selectedTopic}
-          topicName={
-            MOCK_TOPICS.find((t) => t.id === selectedTopic)?.name || ""
-          }
-          riskLevel={
-            MOCK_TOPICS.find((t) => t.id === selectedTopic)?.riskLevel || "low"
-          }
-          riskScore={
-            MOCK_TOPICS.find((t) => t.id === selectedTopic)?.riskScore || 0
-          }
-          onClose={() => setSelectedTopic(null)}
-        />
-      )}
+      {selectedTopic && (() => {
+        const topic = displayTopics.find((t) => t.id === selectedTopic);
+        // Filter documents by topic name
+        const topicDocuments = displayDocuments.filter((doc) => doc.topic === topic?.name);
+
+        return (
+          <TopicDetailModal
+            topicId={selectedTopic}
+            topicName={topic?.name || ""}
+            riskLevel={topic?.riskLevel || "low"}
+            riskScore={topic?.riskScore || 0}
+            documents={topicDocuments}
+            onClose={() => setSelectedTopic(null)}
+          />
+        );
+      })()}
     </div>
   );
 }
