@@ -9,11 +9,19 @@ from .utils.stream import patch_response_with_headers, stream_text
 from .utils.tools import AVAILABLE_TOOLS, TOOL_DEFINITIONS
 from vercel import oidc
 from vercel.headers import set_headers
+from . import db as _db
+from .routes import router as api_router
 
 
 load_dotenv(".env.local")
 
 app = FastAPI()
+
+# initialize DB (creates sqlite file / tables when using default)
+_db.init_db()
+
+# include our new API routes (Continuum endpoints)
+app.include_router(api_router, prefix="/api")
 
 
 @app.middleware("http")

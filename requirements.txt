@@ -25,3 +25,11 @@ uvicorn==0.38.0
 vercel==0.3.2
 vercel-sandbox==0.0.2
 vercel-sdk==0.0.8
+
+# Backend extras for Continuum
+fastapi==0.95.2
+uvicorn==0.22.0
+sqlalchemy==2.0.22
+httpx==0.24.1
+psycopg2-binary==2.9.6
+
