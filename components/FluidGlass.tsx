@@ -32,6 +32,7 @@ export default function FluidGlass({ mode = 'lens', lensProps = {}, barProps = {
         antialias: true,
         toneMapping: THREE.NoToneMapping
       }}
+      style={{ cursor: 'none' }}
     >
       <Wrapper modeProps={modeProps}>
         <Typography />

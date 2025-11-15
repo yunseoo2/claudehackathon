@@ -175,7 +175,13 @@ def rag_answer(db: Session, question: str) -> Dict[str, Any]:
 
 def recommend_onboarding(db: Session, mode: str, team: str = None, person_leaving: int = None, person_joining: int = None) -> str:
     if mode == "team":
-        docs = db.query(models.Document).filter(models.Document.team == team).all() if team else db.query(models.Document).all()
+        # Try to use team_id if available, otherwise fall back to string matching
+        team_obj = db.query(models.Team).filter(models.Team.name == team).first()
+        if team_obj:
+            docs = db.query(models.Document).filter(models.Document.team_id == team_obj.id).all()
+        else:
+            docs = db.query(models.Document).filter(models.Document.team == team).all() if team else db.query(models.Document).all()
+        
         doc_list = "\n".join([f"- {d.title}: {d.summary or ''}" for d in docs[:20]])
         prompt = f"Create a short onboarding plan for team {team}. Use these docs:\n{doc_list}\n"
         return call_claude(prompt)
@@ -193,6 +199,7 @@ def recommend_onboarding(db: Session, mode: str, team: str = None, person_leavin
     return "invalid mode"
 
 
+<<<<<<< HEAD
 ### New read-only helpers for API endpoints
 
 
@@ -271,4 +278,279 @@ def dashboard_stats(db: Session):
         "critical_documents": critical_count,
         "at_risk_documents": at_risk_count,
         "avg_document_risk": round(avg_risk, 1),
+=======
+# New functions for onboarding assistant
+def get_all_teams(db: Session) -> List[Dict[str, Any]]:
+    """Get all teams in the organization."""
+    teams = db.query(models.Team).all()
+    return teams
+
+
+def get_all_roles(db: Session) -> List[Dict[str, Any]]:
+    """Get all roles in the organization."""
+    roles_with_teams = db.query(models.Role, models.Team.name).join(
+        models.Team, models.Role.team_id == models.Team.id, isouter=True
+    ).all()
+    
+    result = []
+    for role, team_name in roles_with_teams:
+        role_dict = {
+            "id": role.id,
+            "name": role.name,
+            "description": role.description,
+            "team": team_name
+        }
+        result.append(role_dict)
+    
+    return result
+
+
+def get_team_roles(db: Session, team_name: str) -> List[Dict[str, Any]]:
+    """Get roles specific to a team."""
+    team = db.query(models.Team).filter(models.Team.name == team_name).first()
+    if not team:
+        return {"error": "team not found"}
+    
+    roles = db.query(models.Role).filter(models.Role.team_id == team.id).all()
+    
+    result = []
+    for role in roles:
+        role_dict = {
+            "id": role.id,
+            "name": role.name,
+            "description": role.description,
+            "team": team_name
+        }
+        result.append(role_dict)
+    
+    return result
+
+
+def get_team_contacts(db: Session, team_name: str) -> List[Dict[str, Any]]:
+    """Get key contact persons for a specific team."""
+    team = db.query(models.Team).filter(models.Team.name == team_name).first()
+    if not team:
+        return {"error": "team not found"}
+    
+    contacts = db.query(models.ContactInfo).filter(models.ContactInfo.team_id == team.id).all()
+    result = []
+    
+    for contact in contacts:
+        person = db.query(models.Person).filter(models.Person.id == contact.person_id).first()
+        if person:
+            result.append({
+                "id": contact.id,
+                "person_id": person.id,
+                "person_name": person.name,
+                "person_role": person.role,
+                "contact_reason": contact.contact_reason,
+                "priority": contact.priority
+            })
+    
+    return result
+
+
+def get_team_documents(db: Session, team_name: str) -> List[Dict[str, Any]]:
+    """Get documents relevant to a specific team."""
+    team = db.query(models.Team).filter(models.Team.name == team_name).first()
+    if not team:
+        return {"error": "team not found"}
+    
+    # Try both team_id and legacy team field
+    docs_by_id = db.query(models.Document).filter(models.Document.team_id == team.id).all()
+    docs_by_name = db.query(models.Document).filter(models.Document.team == team.name).all()
+    
+    # Combine and deduplicate
+    docs = list({doc.id: doc for doc in docs_by_id + docs_by_name}.values())
+    
+    return [{
+        "id": d.id,
+        "title": d.title,
+        "summary": d.summary
+    } for d in docs]
+
+
+def get_role_documents(db: Session, role_name: str, team_name: str = None) -> List[Dict[str, Any]]:
+    """Get documents relevant to a specific role."""
+    query = db.query(models.Role).filter(models.Role.name == role_name)
+    
+    if team_name:
+        team = db.query(models.Team).filter(models.Team.name == team_name).first()
+        if not team:
+            return {"error": "team not found"}
+        query = query.filter(models.Role.team_id == team.id)
+    
+    role = query.first()
+    if not role:
+        return {"error": "role not found"}
+    
+    docs = db.query(models.Document).join(
+        models.DocumentRole,
+        models.Document.id == models.DocumentRole.document_id
+    ).filter(models.DocumentRole.role_id == role.id).all()
+    
+    return [{
+        "id": d.id,
+        "title": d.title,
+        "summary": d.summary
+    } for d in docs]
+
+
+def personalized_onboarding(db: Session, team_name: str, role_name: str = None) -> Dict[str, Any]:
+    """Generate personalized onboarding materials based on team and role."""
+    team = db.query(models.Team).filter(models.Team.name == team_name).first()
+    if not team:
+        return {"error": "team not found"}
+    
+    role = None
+    if role_name:
+        role = db.query(models.Role).filter(
+            models.Role.name == role_name,
+            models.Role.team_id == team.id
+        ).first()
+        if not role:
+            return {"error": "role not found for this team"}
+    
+    # Get relevant documents for this team and role
+    query = db.query(models.Document)
+    team_docs = []
+    
+    # Try both team_id and legacy team field
+    team_docs_by_id = query.filter(models.Document.team_id == team.id).all()
+    team_docs_by_name = query.filter(models.Document.team == team.name).all()
+    team_docs = list({doc.id: doc for doc in team_docs_by_id + team_docs_by_name}.values())
+    
+    role_docs = []
+    if role:
+        # Get documents specifically relevant to this role
+        role_docs = db.query(models.Document).join(
+            models.DocumentRole,
+            models.Document.id == models.DocumentRole.document_id
+        ).filter(models.DocumentRole.role_id == role.id).all()
+    
+    # Combine and deduplicate
+    docs = list({doc.id: doc for doc in team_docs + role_docs}.values())
+    
+    # Get specific people to contact based on team and role
+    team_members = db.query(models.Person).filter(
+        models.Person.team_id == team.id
+    ).all()
+    
+    # Get specific people with the same role
+    role_experts = []
+    if role:
+        role_experts = db.query(models.Person).filter(
+            models.Person.role_id == role.id,
+            models.Person.team_id == team.id
+        ).all()
+    
+    # Get team lead (assuming the first person added to the team is the lead)
+    team_lead = db.query(models.Person).filter(
+        models.Person.team_id == team.id
+    ).order_by(models.Person.id).first()
+    
+    # Get document owners
+    doc_owners = set()
+    for doc in docs:
+        if doc.owner_id:
+            owner = db.query(models.Person).filter(models.Person.id == doc.owner_id).first()
+            if owner:
+                doc_owners.add(owner)
+    
+    # Prepare contacts list
+    contacts = []
+    
+    # Add team lead
+    if team_lead:
+        contacts.append({
+            "id": len(contacts) + 1,
+            "person_id": team_lead.id,
+            "person_name": team_lead.name,
+            "person_role": team_lead.role or "Team Lead",
+            "contact_reason": f"Team lead for {team_name}",
+            "priority": 1
+        })
+    
+    # Add role experts
+    for expert in role_experts:
+        if expert.id != team_lead.id:  # Avoid duplicates
+            contacts.append({
+                "id": len(contacts) + 1,
+                "person_id": expert.id,
+                "person_name": expert.name,
+                "person_role": expert.role or role_name,
+                "contact_reason": f"Expert in {role_name} role",
+                "priority": 2
+            })
+    
+    # Add document owners
+    for owner in doc_owners:
+        if owner.id != team_lead.id and owner.id not in [e.id for e in role_experts]:  # Avoid duplicates
+            contacts.append({
+                "id": len(contacts) + 1,
+                "person_id": owner.id,
+                "person_name": owner.name,
+                "person_role": owner.role,
+                "contact_reason": "Document owner and subject matter expert",
+                "priority": 3
+            })
+    
+    # Add other team members
+    for member in team_members:
+        if member.id != team_lead.id and member.id not in [e.id for e in role_experts] and member.id not in [o.id for o in doc_owners]:
+            contacts.append({
+                "id": len(contacts) + 1,
+                "person_id": member.id,
+                "person_name": member.name,
+                "person_role": member.role,
+                "contact_reason": f"Team member in {team_name}",
+                "priority": 4
+            })
+    
+    # Also get contacts from the contact_info table
+    db_contacts = db.query(models.ContactInfo).filter(models.ContactInfo.team_id == team.id).all()
+    for contact in db_contacts:
+        person = db.query(models.Person).filter(models.Person.id == contact.person_id).first()
+        if person:
+            # Check if this person is already in our contacts list
+            if person.id not in [c["person_id"] for c in contacts]:
+                contacts.append({
+                    "id": len(contacts) + 1,
+                    "person_id": person.id,
+                    "person_name": person.name,
+                    "person_role": person.role,
+                    "contact_reason": contact.contact_reason or f"Contact for {team_name}",
+                    "priority": contact.priority
+                })
+    
+    # Sort contacts by priority
+    contacts = sorted(contacts, key=lambda x: x["priority"])
+    
+    # Generate onboarding plan using Claude
+    doc_list = "\n".join([f"- {d.title}: {d.summary or ''}" for d in docs[:20]])
+    contacts_list = "\n".join([f"- {c['person_name']} ({c['person_role'] or 'N/A'}): {c['contact_reason'] or 'General contact'}" for c in contacts])
+    
+    prompt = (
+        f"Create a personalized onboarding plan for someone joining the {team_name} team"
+        f"{f' as a {role_name}' if role_name else ''}.\n\n"
+        f"Key documents:\n{doc_list}\n\n"
+        f"Key contacts:\n{contacts_list or 'No specific contacts defined.'}\n\n"
+        f"Please include:\n"
+        f"1. A prioritized reading list with rationale\n"
+        f"2. Who to contact for specific questions (use the specific people listed above)\n"
+        f"3. First week, first month, and first quarter milestones\n"
+    )
+    
+    claude_out = call_claude(prompt)
+    
+    return {
+        "team": team_name,
+        "role": role_name,
+        "plan": claude_out,
+        "relevant_docs": [{
+            "id": d.id,
+            "title": d.title
+        } for d in docs],
+        "key_contacts": contacts
+>>>>>>> 59ff7c6 (integrated api)
     }

@@ -79,5 +79,12 @@ def root():
             "documents_at_risk": "GET /api/documents/at-risk",
             "rag_query": "POST /api/query",
             "recommend_onboarding": "POST /api/recommend-onboarding",
+            "teams": "GET /api/teams",
+            "roles": "GET /api/roles",
+            "team_roles": "GET /api/teams/{team_name}/roles",
+            "team_contacts": "GET /api/teams/{team_name}/contacts",
+            "personalized_onboarding": "POST /api/onboarding/personalized",
+            "team_documents": "GET /api/documents/by-team/{team_name}",
+            "role_documents": "GET /api/documents/by-role/{role_name}",
         }
     }

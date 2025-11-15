@@ -46,7 +46,14 @@ Root endpoint with API information.
     "simulate_departure": "POST /api/simulate-departure",
     "documents_at_risk": "GET /api/documents/at-risk",
     "rag_query": "POST /api/query",
-    "recommend_onboarding": "POST /api/recommend-onboarding"
+    "recommend_onboarding": "POST /api/recommend-onboarding",
+     "teams": "GET /api/teams",
+     "roles": "GET /api/roles",
+     "team_roles": "GET /api/teams/{team_name}/roles",
+     "team_contacts": "GET /api/teams/{team_name}/contacts",
+     "personalized_onboarding": "POST /api/onboarding/personalized",
+     "team_documents": "GET /api/documents/by-team/{team_name}",
+     "role_documents": "GET /api/documents/by-role/{role_name}"
   }
 }
 ```
@@ -407,6 +414,396 @@ curl -X POST http://localhost:8000/api/recommend-onboarding \
 
 ---
 
+### 5. GET `/api/teams`
+
+**Summary:** Get all teams in the organization.
+
+**What it does:**
+- Returns a list of all teams in the organization
+- Includes team name, description, and ID
+
+**Request:** None
+
+**Response:**
+```json
+[
+  {
+    "id": 1,
+    "name": "Infra",
+    "description": "Infrastructure team responsible for deployments and CI/CD"
+  },
+  {
+    "id": 2,
+    "name": "Payroll",
+    "description": "Handles employee payroll processing"
+  }
+]
+```
+
+**Response Schema:**
+| Field | Type | Description |
+|-------|------|-------------|
+| id | integer | Team ID |
+| name | string | Team name |
+| description | string | Team description |
+
+**Example:**
+```bash
+curl http://localhost:8000/api/teams | jq
+```
+
+---
+
+### 6. GET `/api/roles`
+
+**Summary:** Get all roles in the organization.
+
+**What it does:**
+- Returns a list of all roles in the organization
+- Includes role name, description, team association, and ID
+
+**Request:** None
+
+**Response:**
+```json
+[
+  {
+    "id": 1,
+    "name": "SRE",
+    "description": "Site Reliability Engineer",
+    "team": "Infra"
+  },
+  {
+    "id": 2,
+    "name": "Platform Engineer",
+    "description": "Platform infrastructure engineer",
+    "team": "Infra"
+  }
+]
+```
+
+**Response Schema:**
+| Field | Type | Description |
+|-------|------|-------------|
+| id | integer | Role ID |
+| name | string | Role name |
+| description | string | Role description |
+| team | string | Associated team name |
+
+**Example:**
+```bash
+curl http://localhost:8000/api/roles | jq
+```
+
+---
+
+### 7. GET `/api/teams/{team_name}/roles`
+
+**Summary:** Get roles specific to a team.
+
+**What it does:**
+- Returns a list of roles for a specific team
+- Filters roles by team association
+
+**Path Parameters:**
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| team_name | string | Yes | Name of the team to get roles for |
+
+**Response:**
+```json
+[
+  {
+    "id": 1,
+    "name": "SRE",
+    "description": "Site Reliability Engineer",
+    "team": "Infra"
+  },
+  {
+    "id": 2,
+    "name": "Platform Engineer",
+    "description": "Platform infrastructure engineer",
+    "team": "Infra"
+  }
+]
+```
+
+**Response Schema:**
+| Field | Type | Description |
+|-------|------|-------------|
+| id | integer | Role ID |
+| name | string | Role name |
+| description | string | Role description |
+| team | string | Associated team name |
+
+**Error Response (404):**
+```json
+{
+  "detail": "team not found"
+}
+```
+
+**Example:**
+```bash
+curl http://localhost:8000/api/teams/Infra/roles | jq
+```
+
+---
+
+### 8. GET `/api/teams/{team_name}/contacts`
+
+**Summary:** Get key contact persons for a specific team.
+
+**What it does:**
+- Returns a list of contact persons for a specific team
+- Includes contact reason and priority
+
+**Path Parameters:**
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| team_name | string | Yes | Name of the team to get contacts for |
+
+**Response:**
+```json
+[
+  {
+    "id": 1,
+    "person_id": 1,
+    "person_name": "Alice",
+    "person_role": "SRE",
+    "contact_reason": "Primary contact for deployments",
+    "priority": 1
+  },
+  {
+    "id": 2,
+    "person_id": 6,
+    "person_name": "Carlos",
+    "person_role": "Platform Engineer",
+    "contact_reason": "Contact for rollback procedures",
+    "priority": 2
+  }
+]
+```
+
+**Response Schema:**
+| Field | Type | Description |
+|-------|------|-------------|
+| id | integer | Contact info ID |
+| person_id | integer | ID of the contact person |
+| person_name | string | Name of the contact person |
+| person_role | string | Role of the contact person |
+| contact_reason | string | Reason to contact this person |
+| priority | integer | Priority (1=primary, 2=secondary, etc.) |
+
+**Error Response (404):**
+```json
+{
+  "detail": "team not found"
+}
+```
+
+**Example:**
+```bash
+curl http://localhost:8000/api/teams/Infra/contacts | jq
+```
+
+---
+
+### 9. POST `/api/onboarding/personalized`
+
+**Summary:** Generate personalized onboarding materials based on team and role.
+
+**What it does:**
+- Combines team and role information to provide personalized onboarding materials
+- Returns relevant documents, key contacts, and an AI-generated onboarding plan
+
+**Request Body:**
+```json
+{
+  "team": "Infra",
+  "role": "SRE"
+}
+```
+
+**Request Schema:**
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| team | string | Yes | Team name |
+| role | string | No | Role name (optional) |
+
+**Response:**
+```json
+{
+  "team": "Infra",
+  "role": "SRE",
+  "plan": "# Personalized Onboarding Plan for SRE in Infra Team\n\n## Week 1: Foundation & Access\n**Objectives:** Get familiar with infrastructure basics and gain necessary access\n\n### Documents to Review:\n1. **Deployment Runbook** (Critical - Priority 1)\n   - Learn the end-to-end deployment process\n   - Understand pre-deploy checks and health monitoring\n   - Shadow 2-3 deployments before attempting independently\n\n2. **Rollback Procedure** (Critical - Priority 1)\n   - Study rollback scenarios and procedures\n   - Understand how to identify failed releases\n   - Practice in staging environment\n\n...",
+  "relevant_docs": [
+    {
+      "id": 1,
+      "title": "Deployment Runbook"
+    },
+    {
+      "id": 2,
+      "title": "Rollback Procedure"
+    }
+  ],
+  "key_contacts": [
+    {
+      "id": 1,
+      "person_id": 1,
+      "person_name": "Alice",
+      "person_role": "SRE",
+      "contact_reason": "Primary contact for deployments",
+      "priority": 1
+    },
+    {
+      "id": 2,
+      "person_id": 6,
+      "person_name": "Carlos",
+      "person_role": "Platform Engineer",
+      "contact_reason": "Contact for rollback procedures",
+      "priority": 2
+    }
+  ]
+}
+```
+
+**Response Schema:**
+| Field | Type | Description |
+|-------|------|-------------|
+| team | string | Team name |
+| role | string | Role name (if provided) |
+| plan | string | Claude-generated onboarding plan in Markdown format |
+| relevant_docs | array | Documents relevant to the team and role |
+| key_contacts | array | Key contacts for the team |
+
+**Error Response (404):**
+```json
+{
+  "detail": "team not found"
+}
+```
+
+**Example:**
+```bash
+curl -X POST http://localhost:8000/api/onboarding/personalized \
+  -H "Content-Type: application/json" \
+  -d '{
+    "team": "Infra",
+    "role": "SRE"
+  }' | jq
+```
+
+---
+
+### 10. GET `/api/documents/by-team/{team_name}`
+
+**Summary:** Get documents relevant to a specific team.
+
+**What it does:**
+- Returns a list of documents associated with a specific team
+
+**Path Parameters:**
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| team_name | string | Yes | Name of the team to get documents for |
+
+**Response:**
+```json
+[
+  {
+    "id": 1,
+    "title": "Deployment Runbook",
+    "summary": "Deployment procedures for production releases"
+  },
+  {
+    "id": 2,
+    "title": "Rollback Procedure",
+    "summary": "How to roll back failed deployments"
+  }
+]
+```
+
+**Response Schema:**
+| Field | Type | Description |
+|-------|------|-------------|
+| id | integer | Document ID |
+| title | string | Document title |
+| summary | string | Document summary |
+
+**Error Response (404):**
+```json
+{
+  "detail": "team not found"
+}
+```
+
+**Example:**
+```bash
+curl http://localhost:8000/api/documents/by-team/Infra | jq
+```
+
+---
+
+### 11. GET `/api/documents/by-role/{role_name}`
+
+**Summary:** Get documents relevant to a specific role.
+
+**What it does:**
+- Returns a list of documents associated with a specific role
+- Optionally filters by team
+
+**Path Parameters:**
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| role_name | string | Yes | Name of the role to get documents for |
+
+**Query Parameters:**
+| Parameter | Type | Required | Default | Description |
+|-----------|------|----------|---------|-------------|
+| team_name | string | No | null | Filter by team name |
+
+**Response:**
+```json
+[
+  {
+    "id": 1,
+    "title": "Deployment Runbook",
+    "summary": "Deployment procedures for production releases"
+  },
+  {
+    "id": 6,
+    "title": "CI/CD Troubleshooting Guide",
+    "summary": "Troubleshooting common CI/CD issues"
+  }
+]
+```
+
+**Response Schema:**
+| Field | Type | Description |
+|-------|------|-------------|
+| id | integer | Document ID |
+| title | string | Document title |
+| summary | string | Document summary |
+
+**Error Response (404):**
+```json
+{
+  "detail": "role not found"
+}
+```
+
+**Example:**
+```bash
+# Get documents for a role
+curl http://localhost:8000/api/documents/by-role/SRE | jq
+
+# Get documents for a role in a specific team
+curl "http://localhost:8000/api/documents/by-role/SRE?team_name=Infra" | jq
+```
+
+---
+
 ## Common Response Patterns
 
 ### Success Response
@@ -643,3 +1040,9 @@ console.log(`Team resilience: ${risk.team_resilience_score}`);
 - Risk scoring algorithm
 - Claude integration for natural language generation
 - RAG-based Q&A system
+
+**v1.1.0 (2025-11-15)**
+- Added onboarding assistant feature
+- 7 new endpoints for team/role selection and personalized onboarding
+- Enhanced data models for teams, roles, and contacts
+- Improved document organization by team and role

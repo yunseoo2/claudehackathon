@@ -82,11 +82,19 @@ python -m api.seed_data
 
 # Run the ingest script to extract topics/systems and update document summaries
 python -m api.ingest_topics_and_systems
+
+# Run the migration script for the onboarding assistant feature
+python migrate_db.py
+
+# Seed data for the onboarding assistant feature
+python seed_onboarding_data.py
 ```
 
 Notes about the seed data:
 - `api/seed_data.py` inserts several People and Documents (owners, teams, critical flags).
 - `api/ingest_topics_and_systems.py` contains a stubbed extractor; it upserts `Topic` and `System` rows and links them to documents. Replace the stub with your Claude/Anthropic integration as needed.
+- `migrate_db.py` creates new tables for the onboarding assistant feature and migrates existing data.
+- `seed_onboarding_data.py` creates sample teams, roles, documents, and contacts for the onboarding assistant feature.
 
 ### 5. Start Development Servers
 
@@ -174,6 +182,27 @@ curl -sS -i -H "Content-Type: application/json" -X POST http://localhost:8000/ap
 
 # Team onboarding
 curl -sS -i -H "Content-Type: application/json" -X POST http://localhost:8000/api/recommend-onboarding -d '{"mode":"team","team":"Infra"}'
+
+# Get all teams
+curl -sS http://localhost:8000/api/teams | jq
+
+# Get all roles
+curl -sS http://localhost:8000/api/roles | jq
+
+# Get team-specific roles
+curl -sS http://localhost:8000/api/teams/Engineering/roles | jq
+
+# Get team contacts
+curl -sS http://localhost:8000/api/teams/Engineering/contacts | jq
+
+# Get personalized onboarding
+curl -sS -i -H "Content-Type: application/json" -X POST http://localhost:8000/api/onboarding/personalized -d '{"team":"Engineering","role":"Software Engineer"}'
+
+# Get team documents
+curl -sS http://localhost:8000/api/documents/by-team/Engineering | jq
+
+# Get role documents
+curl -sS http://localhost:8000/api/documents/by-role/"Software Engineer" | jq
 ```
 
 ---
@@ -194,9 +223,14 @@ curl -sS -i -H "Content-Type: application/json" -X POST http://localhost:8000/ap
    - Answer questions using relevant documents
    - List people to contact and resilience metadata
 
-4. **Onboarding Assistant** (`POST /api/recommend-onboarding`)
-   - Team onboarding plans
-   - Person-to-person handoff guides
+4. **Onboarding Assistant**
+   - Team onboarding plans (`POST /api/recommend-onboarding`)
+   - Person-to-person handoff guides (`POST /api/recommend-onboarding`)
+   - Personalized onboarding by team and role (`POST /api/onboarding/personalized`)
+   - Team and role selection (`GET /api/teams`, `GET /api/roles`)
+   - Team-specific roles (`GET /api/teams/{team_name}/roles`)
+   - Team contacts (`GET /api/teams/{team_name}/contacts`)
+   - Team and role-specific documents (`GET /api/documents/by-team/{team_name}`, `GET /api/documents/by-role/{role_name}`)
 
 Anthropic integration notes:
 - `api/anthropic_client.py` now reads `ANTHROPIC_API_KEY` at call time (so you can update `.env` without restarting) and includes simple retry/backoff for transient 5xx/429 errors.

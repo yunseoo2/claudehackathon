@@ -101,8 +101,8 @@ export function Landing() {
       color: "bg-emerald-50 border border-emerald-200/60"
     },
     {
-      title: "Knowledge Assistant",
-      description: "Ask questions and get resilience-aware answers from your docs. Generate personalized onboarding plans with key people to meet and docs to read.",
+      title: "Onboarding Assistant",
+      description: "Generate personalized onboarding plans with key people to meet and docs to read.",
       icon: <MessageSquare className="w-7 h-7 text-purple-600" />,
       href: "/knowledge",
       color: "bg-purple-50 border border-purple-200/60"
