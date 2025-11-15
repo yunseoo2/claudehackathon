@@ -199,7 +199,6 @@ def recommend_onboarding(db: Session, mode: str, team: str = None, person_leavin
     return "invalid mode"
 
 
-<<<<<<< HEAD
 ### New read-only helpers for API endpoints
 
 
@@ -278,7 +277,6 @@ def dashboard_stats(db: Session):
         "critical_documents": critical_count,
         "at_risk_documents": at_risk_count,
         "avg_document_risk": round(avg_risk, 1),
-=======
 # New functions for onboarding assistant
 def get_all_teams(db: Session) -> List[Dict[str, Any]]:
     """Get all teams in the organization."""
@@ -552,5 +550,4 @@ def personalized_onboarding(db: Session, team_name: str, role_name: str = None) 
             "title": d.title
         } for d in docs],
         "key_contacts": contacts
->>>>>>> 59ff7c6 (integrated api)
     }

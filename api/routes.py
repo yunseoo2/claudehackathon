@@ -52,7 +52,6 @@ def recommend_onboarding(req: OnboardingRequest, dbs: Session = Depends(get_db))
     return {"plan": out}
 
 
-<<<<<<< HEAD
 @router.get("/topics")
 def list_topics(dbs: Session = Depends(get_db)):
     """List all topics with summary stats."""
@@ -78,7 +77,6 @@ def documents_risky(threshold: int = Query(60), limit: int = Query(0), dbs: Sess
 def dashboard_stats(dbs: Session = Depends(get_db)):
     """Return counters and aggregated risk metrics for dashboard."""
     return services.dashboard_stats(dbs)
-=======
 # New endpoints for onboarding assistant
 @router.get("/teams", response_model=List[TeamResponse])
 def get_teams(dbs: Session = Depends(get_db)):
@@ -137,4 +135,3 @@ def get_role_documents(role_name: str, team_name: Optional[str] = None, dbs: Ses
     if isinstance(docs, dict) and "error" in docs:
         raise HTTPException(status_code=404, detail=docs["error"])
     return docs
->>>>>>> 59ff7c6 (integrated api)
