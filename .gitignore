@@ -17,3 +17,21 @@ yarn-error.log*
 # Vercel
 .vercel
 
+# Environment variables (sensitive!)
+.env
+.env.local
+.env*.local
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+api/.venv/
+api/__pycache__/
