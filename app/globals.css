@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Merriweather:wght@300;400;700&family=Inter:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Crimson+Pro:wght@300;400;500;600&family=Inter:wght@300;400;500&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -12,30 +12,43 @@
 
 @layer base {
     :root {
-        --background: 0 0% 97.5%;
-        --foreground: 222 47% 11%;
+        /* Off-white background palette */
+        --background: 0 0% 98%;
+        --foreground: 215 25% 15%;
         --card: 0 0% 100%;
-        --card-foreground: 222 47% 11%;
+        --card-foreground: 215 25% 15%;
         --popover: 0 0% 100%;
-        --popover-foreground: 222 47% 11%;
-        --primary: 217 91% 60%;
+        --popover-foreground: 215 25% 15%;
+
+        /* Deep blue for primary actions */
+        --primary: 215 70% 45%;
         --primary-foreground: 0 0% 100%;
-        --secondary: 217 80% 70%;
-        --secondary-foreground: 222 47% 11%;
-        --muted: 220 13% 91%;
-        --muted-foreground: 220 9% 46%;
-        --accent: 217 91% 60%;
-        --accent-foreground: 0 0% 100%;
+
+        /* Soft neutrals */
+        --secondary: 210 20% 96%;
+        --secondary-foreground: 215 25% 15%;
+        --muted: 210 20% 94%;
+        --muted-foreground: 215 15% 45%;
+
+        /* Light blue accents */
+        --accent: 210 100% 96%;
+        --accent-foreground: 215 70% 35%;
+
         --destructive: 0 84.2% 60.2%;
         --destructive-foreground: 0 0% 98%;
-        --border: 220 13% 91%;
-        --input: 220 13% 91%;
-        --ring: 217 91% 60%;
-        --chart-1: 217 91% 60%;
-        --chart-2: 160 60% 45%;
-        --chart-3: 30 80% 55%;
-        --chart-4: 280 65% 60%;
-        --chart-5: 340 75% 55%;
+
+        /* Subtle borders */
+        --border: 215 15% 88%;
+        --input: 215 15% 90%;
+        --ring: 215 70% 45%;
+
+        --chart-1: 12 76% 61%;
+        --chart-2: 173 58% 39%;
+        --chart-3: 197 37% 24%;
+        --chart-4: 43 74% 66%;
+        --chart-5: 27 87% 67%;
+
+        /* Generous rounded corners */
         --radius: 0.75rem;
     }
     .dark {
@@ -71,10 +84,22 @@
         @apply border-border;
     }
     body {
-        @apply bg-background text-foreground font-body;
+        @apply bg-background text-foreground;
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+        font-weight: 300;
+        letter-spacing: -0.01em;
     }
-    h1, h2, h3, h4, h5, h6 {
-        @apply font-serif;
+
+    /* Serif typography for headings */
+    h1, h2, h3, h4, h5, h6, .heading {
+        font-family: 'Crimson Pro', Georgia, serif;
+        font-weight: 500;
+        letter-spacing: -0.02em;
+    }
+
+    /* Refined button and input styling */
+    button, input, textarea {
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
     }
 }
 
@@ -123,4 +148,58 @@
     box-shadow: 0 0 30px rgba(59, 130, 246, 0.6);
     transform: translateY(-2px);
     transition: all 0.3s ease;
+/* Animated blob background */
+@keyframes blob {
+    0% {
+        transform: translate(0px, 0px) scale(1);
+    }
+    33% {
+        transform: translate(30px, -50px) scale(1.1);
+    }
+    66% {
+        transform: translate(-20px, 20px) scale(0.9);
+    }
+    100% {
+        transform: translate(0px, 0px) scale(1);
+    }
+}
+
+.animate-blob {
+    animation: blob 7s infinite;
+}
+
+/* Floating animation for geometric shapes */
+@keyframes float {
+    0% {
+        transform: translateY(0px) translateX(0px);
+    }
+    33% {
+        transform: translateY(-20px) translateX(10px);
+    }
+    66% {
+        transform: translateY(10px) translateX(-10px);
+    }
+    100% {
+        transform: translateY(0px) translateX(0px);
+    }
+}
+
+.animate-float {
+    animation: float 8s ease-in-out infinite;
+}
+
+.animation-delay-1000 {
+    animation-delay: 1s;
+}
+
+.animation-delay-2000 {
+    animation-delay: 2s;
+}
+
+.animation-delay-3000 {
+    animation-delay: 3s;
+}
+
+.animation-delay-4000 {
+    animation-delay: 4s;
 }

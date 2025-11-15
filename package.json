@@ -12,14 +12,16 @@
   },
   "dependencies": {
     "@ai-sdk/react": "^2.0.76",
+    "@gsap/react": "^2.1.2",
     "@radix-ui/react-slot": "^1.1.0",
+    "@react-three/drei": "9.114.3",
+    "@react-three/fiber": "8.17.10",
     "@types/node": "20.2.4",
     "@types/react": "18.2.7",
     "@types/react-dom": "18.2.4",
     "@vercel/analytics": "^1.3.1",
     "@vercel/kv": "^2.0.0",
     "ai": "^5.0.76",
-    "zod": "^4.1.12",
     "autoprefixer": "10.4.14",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
@@ -29,8 +31,11 @@
     "eslint-config-next": "13.4.4",
     "framer-motion": "^11.11.17",
     "geist": "^1.3.1",
+    "gsap": "^3.13.0",
     "lucide-react": "^0.460.0",
+    "maath": "^0.10.8",
     "next": "13.4.4",
+    "ogl": "^1.0.11",
     "postcss": "8.4.23",
     "react": "18.2.0",
     "react-dom": "18.2.0",
@@ -40,9 +45,13 @@
     "tailwind-merge": "^2.5.4",
     "tailwindcss": "3.4.15",
     "tailwindcss-animate": "^1.0.7",
+    "three": "0.169.0",
+    "types": "link:next-themes/dist/types",
     "typescript": "5.0.4",
     "usehooks-ts": "^3.1.0",
-    "gsap": "^3.12.5",
-    "ogl": "^1.0.6"
+    "zod": "^4.1.12"
+  },
+  "devDependencies": {
+    "shadcn": "^3.5.0"
   }
 }
