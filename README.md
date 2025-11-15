@@ -37,67 +37,79 @@ source api/.venv/bin/activate  # Windows: api\.venv\Scripts\activate
 pip install sqlalchemy==2.0.22 psycopg2-binary==2.9.6
 ```
 
-### 3. Environment Configuration (Optional)
+### 3. Environment Configuration
 
-```bash
-# Copy the example env file (optional - only needed if using Anthropic API)
-cp .env.example .env
+Create a `.env` file in the project root to configure runtime secrets. `.env` is preferred and will take precedence over `.env.local`.
 
-# Optional: Add your Anthropic API key for real Claude responses
-# Edit .env and add:
-# ANTHROPIC_API_KEY=sk-ant-...
+Example (edit values as needed):
+
+```env
+# Database (optional - leave commented to use SQLite fallback)
+# DATABASE_URL=postgresql+psycopg2://continuum:continuum@localhost:5432/continuum
+
+# Anthropic API Key (optional) — leave empty to use mocked LLM responses
+ANTHROPIC_API_KEY=sk-ant-...
 ```
 
-**Note:** The backend uses SQLite by default (`continuum.db`). To use PostgreSQL instead, set `DATABASE_URL` in your `.env` file.
+Notes:
+- The app now prefers `.env` over `.env.local` (if both exist `.env` wins).
+- If you do not set `DATABASE_URL`, the backend falls back to a local SQLite `dev.db`.
 
 ### 4. Initialize & Seed Database
 
+Make sure your venv is activated (the project uses `api/.venv` by default):
+
 ```bash
-# Make sure venv is activated
 source api/.venv/bin/activate
-
-# Create tables
-python -m api.init_db
-
-# Insert rich, realistic sample data (recommended for demos)
-python -m api.seed_data_rich
-
-# Extract topics & systems from documents
-python -m api.ingest_topics_and_systems
-
-# Verify everything is set up
-python -m api.healthcheck
 ```
 
-**What gets seeded:**
-- ✅ **15 people** across 6 diverse teams (Infrastructure, Backend, Payments, Finance, Support, Security)
-- ✅ **16 detailed documents** with realistic content (deployment guides, security policies, payment flows, etc.)
-- ✅ **Multiple risk profiles**: Critical + stale (90-180 days), critical + fresh, well-maintained
-- ✅ **Single points of failure**: Security team has only 1 person (great for demos!)
-- ✅ **6 topics** extracted from documents
-- ✅ **Varied staleness**: 0-180 days (perfect for risk visualizations)
-- ✅ Topics, systems, and interconnected relationships
+Create DB tables (the app also creates tables on startup):
 
-**For simpler data** (optional):
 ```bash
-# Use basic seed data instead (6 people, 8 documents)
-python -m api.seed_data
+# You can create tables programmatically by importing the DB module in Python:
+python - <<'PY'
+from api import db
+db.init_db()
+print('tables created')
+PY
 ```
+
+Seed sample data (recommended for demos):
+
+```bash
+# Seed people & documents (basic seeder)
+python -m api.seed_data
+
+# Run the ingest script to extract topics/systems and update document summaries
+python -m api.ingest_topics_and_systems
+```
+
+Notes about the seed data:
+- `api/seed_data.py` inserts several People and Documents (owners, teams, critical flags).
+- `api/ingest_topics_and_systems.py` contains a stubbed extractor; it upserts `Topic` and `System` rows and links them to documents. Replace the stub with your Claude/Anthropic integration as needed.
 
 ### 5. Start Development Servers
 
+Start frontend + backend together using the repo dev script:
+
 ```bash
-# Start both frontend and backend together
 yarn dev
-# OR: npm run dev
+# or
+# npm run dev
 ```
 
-**What runs:**
-- ✅ Backend API: http://localhost:8000
-- ✅ Frontend: http://localhost:3000
-- ✅ API Docs: http://localhost:8000/docs
+You can also run just the backend (recommended during backend work):
 
-**To stop:** Press `Ctrl+C` (both servers will stop automatically)
+```bash
+uvicorn api.main:app --reload --port 8000
+```
+
+What runs:
+- Backend API: http://localhost:8000
+- Frontend: http://localhost:3000
+- API Docs: http://localhost:8000/docs
+
+To stop: press Ctrl+C
 
 ---
 
@@ -145,27 +157,23 @@ Visit http://localhost:8000/docs and use the "Try it out" buttons
 
 ### Option 2: cURL Examples
 
+Use these exact commands (safe quoting) to test endpoints:
+
 ```bash
-# Check health
-curl http://localhost:8000/health
+# Health
+curl -sS -i http://localhost:8000/health
 
-# Get at-risk documents
-curl http://localhost:8000/api/documents/at-risk | jq
+# At-risk documents
+curl -sS http://localhost:8000/api/documents/at-risk | jq
 
-# Simulate Alice leaving
-curl -X POST http://localhost:8000/api/simulate-departure \
-  -H "Content-Type: application/json" \
-  -d '{"person_id": 1}' | jq
+# Simulate departure
+curl -sS -i -H "Content-Type: application/json" -X POST http://localhost:8000/api/simulate-departure -d '{"person_id":1}'
 
-# Ask a question
-curl -X POST http://localhost:8000/api/query \
-  -H "Content-Type: application/json" \
-  -d '{"question": "How do I deploy a new service?"}' | jq
+# RAG query
+curl -sS -i -H "Content-Type: application/json" -X POST http://localhost:8000/api/query -d '{"question":"How do I deploy?"}'
 
-# Get team onboarding plan
-curl -X POST http://localhost:8000/api/recommend-onboarding \
-  -H "Content-Type: application/json" \
-  -d '{"mode": "team", "team": "Infra"}' | jq
+# Team onboarding
+curl -sS -i -H "Content-Type: application/json" -X POST http://localhost:8000/api/recommend-onboarding -d '{"mode":"team","team":"Infra"}'
 ```
 
 ---
@@ -175,12 +183,12 @@ curl -X POST http://localhost:8000/api/recommend-onboarding \
 1. **Continuity Simulator** (`POST /api/simulate-departure`)
    - Compute bus factors, flag degraded topics
    - List orphaned docs and under-documented systems
-   - Generate cross-training suggestions with Claude
+   - Generate cross-training suggestions with Claude/Anthropic
 
 2. **Resilience Radar** (`GET /api/documents/at-risk`)
    - Risk scoring per document and topic
    - Team resilience score (0-100)
-   - Claude-powered improvement recommendations
+   - Claude-powered improvement recommendations (optional)
 
 3. **RAG Q&A** (`POST /api/query`)
    - Answer questions using relevant documents
@@ -189,6 +197,10 @@ curl -X POST http://localhost:8000/api/recommend-onboarding \
 4. **Onboarding Assistant** (`POST /api/recommend-onboarding`)
    - Team onboarding plans
    - Person-to-person handoff guides
+
+Anthropic integration notes:
+- `api/anthropic_client.py` now reads `ANTHROPIC_API_KEY` at call time (so you can update `.env` without restarting) and includes simple retry/backoff for transient 5xx/429 errors.
+- If `ANTHROPIC_API_KEY` is not set, the client returns a short mocked response to keep the app usable in development.
 
 ---
 
@@ -208,4 +220,8 @@ curl -X POST http://localhost:8000/api/recommend-onboarding \
 - **Backend**: FastAPI + SQLAlchemy
 - **Frontend**: Next.js + TypeScript + React
 - **LLM**: Claude 3.5 Sonnet (Anthropic)
+- **Database**: SQLite (default) or PostgreSQL (optional)
+- **Backend**: FastAPI + SQLAlchemy
+- **Frontend**: Next.js + TypeScript + React
+- **LLM**: Claude (Anthropic) — optional; mocked when `ANTHROPIC_API_KEY` is absent
 - **Database**: SQLite (default) or PostgreSQL (optional)

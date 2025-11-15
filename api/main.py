@@ -12,7 +12,10 @@ from fastapi.middleware.cors import CORSMiddleware
 from dotenv import load_dotenv
 
 # IMPORTANT: Load .env FIRST, before any imports that use DATABASE_URL
-load_dotenv(".env", override=False)
+# Load `.env` first and prefer its values, then load `.env.local` without
+# overriding so `.env` takes precedence. This ensures developer-controlled
+# `.env` is used instead of `.env.local` when both exist.
+load_dotenv(".env", override=True)
 load_dotenv(".env.local", override=False)
 
 # Force SQLite by unsetting DATABASE_URL if it's not explicitly set in .env

@@ -13,7 +13,11 @@ from . import db as _db
 from .routes import router as api_router
 
 
-load_dotenv(".env.local")
+# Load `.env` first and prefer its values, then load `.env.local` without
+# overriding so `.env` takes precedence. This ensures developer-controlled
+# `.env` is used instead of `.env.local`.
+load_dotenv(".env", override=True)
+load_dotenv(".env.local", override=False)
 
 app = FastAPI()
 
