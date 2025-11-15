@@ -3,7 +3,8 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, declarative_base
 
 # Read database URL from environment; fallback to local sqlite for convenience
-DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./dev.db")
+# Using SQLite by default for easier development
+DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./continuum.db")
 
 # For SQLite only: disable same-thread check
 connect_args = {}
