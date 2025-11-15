@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Merriweather:wght@300;400;700&family=Inter:wght@400;500;600;700&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -69,7 +71,10 @@
         @apply border-border;
     }
     body {
-        @apply bg-background text-foreground;
+        @apply bg-background text-foreground font-body;
+    }
+    h1, h2, h3, h4, h5, h6 {
+        @apply font-serif;
     }
 }
 
@@ -108,4 +113,47 @@
 
 .animate-shine {
     animation: shine 1.5s ease-in-out infinite;
+}
+
+/* Enhanced utility classes for visual effects */
+
+.glass-morph {
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.shimmer-text {
+    background: linear-gradient(
+        90deg,
+        rgba(255, 255, 255, 0.3) 0%,
+        rgba(255, 255, 255, 0.6) 50%,
+        rgba(255, 255, 255, 0.3) 100%
+    );
+    background-size: 200% 100%;
+    animation: shimmer 2s linear infinite;
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.glow-on-hover:hover {
+    box-shadow: 0 0 30px rgba(59, 130, 246, 0.6);
+    transform: translateY(-2px);
+    transition: all 0.3s ease;
+}
+
+/* Gradient backgrounds inspired by reference image */
+.bg-gradient-dark-purple {
+    background: linear-gradient(135deg, #1a1f3a 0%, #2d1b4e 50%, #4a1e5c 100%);
+}
+
+.bg-gradient-navy-purple {
+    background: linear-gradient(to bottom right, #0f172a 0%, #1e293b 25%, #3730a3 75%, #6b21a8 100%);
+}
+
+.card-glass-dark {
+    background: rgba(30, 27, 75, 0.4);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
 }

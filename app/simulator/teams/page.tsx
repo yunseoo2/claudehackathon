@@ -44,10 +44,10 @@ export default function TeamsPage() {
   ];
 
   return (
-    <div className="min-h-screen p-8 bg-slate-50">
+    <div className="min-h-screen p-8 bg-gradient-to-br from-slate-50 via-blue-50/30 to-slate-50 dark:from-dark-900 dark:via-dark-800 dark:to-dark-900">
       <div className="max-w-6xl mx-auto">
-        <h1 className={`${playfair.className} text-center text-4xl font-semibold mb-4 text-slate-900`}>Team Hierarchy</h1>
-        <p className="text-center text-slate-600 mb-6">Select a department and team, then click a person node to open their detail page.</p>
+        <h1 className={`${playfair.className} text-center text-4xl font-semibold mb-4 text-slate-900 dark:text-blue-100`}>Team Hierarchy</h1>
+        <p className="text-center text-slate-600 dark:text-slate-400 mb-6">Select a department and team, then click a person node to open their detail page.</p>
         <TeamGraph departments={departments} teams={teams} people={people} />
       </div>
     </div>

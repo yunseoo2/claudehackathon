@@ -70,12 +70,12 @@ export function HandoffPlan({ assignments, undocumentedSystems = [] }: HandoffPl
   };
 
   return (
-    <div className="bg-white border border-border rounded-xl p-8 shadow-sm">
-      <h2 className="text-2xl font-semibold mb-2 text-gray-900">
+    <div className="bg-white dark:bg-dark-700/30 border border-border dark:border-dark-600 rounded-xl p-8 shadow-sm">
+      <h2 className="text-2xl font-semibold mb-2 text-gray-900 dark:text-white">
         Recommended Handoff Plan
       </h2>
 
-      <p className="text-sm text-gray-600 mb-6">
+      <p className="text-sm text-gray-600 dark:text-gray-400 mb-6">
         Suggested assignments to minimize knowledge loss
       </p>
 
@@ -84,17 +84,17 @@ export function HandoffPlan({ assignments, undocumentedSystems = [] }: HandoffPl
         {assignments.map((assignment, index) => (
           <div
             key={index}
-            className="p-6 border border-blue-200 bg-blue-50/50 rounded-lg hover:border-blue-300 transition-all"
+            className="p-6 border border-blue-200 dark:border-blue-900/50 bg-blue-50/50 dark:bg-blue-900/10 rounded-lg hover:border-blue-300 dark:hover:border-blue-800 transition-all"
           >
             <div className="flex items-center gap-3 mb-4">
-              <div className="w-12 h-12 bg-blue-600 rounded-full flex items-center justify-center text-white font-semibold text-lg shadow-sm">
+              <div className="w-12 h-12 bg-blue-600 dark:bg-blue-700 rounded-full flex items-center justify-center text-white font-semibold text-lg shadow-sm">
                 {assignment.person.charAt(0)}
               </div>
               <div>
-                <h3 className="font-semibold text-base text-gray-900">
+                <h3 className="font-semibold text-base text-gray-900 dark:text-white">
                   Assign to {assignment.person}
                 </h3>
-                <p className="text-sm text-gray-600">
+                <p className="text-sm text-gray-600 dark:text-gray-400">
                   {assignment.documents.length} document
                   {assignment.documents.length !== 1 ? "s" : ""} •{" "}
                   {assignment.systems.length} system
@@ -106,14 +106,14 @@ export function HandoffPlan({ assignments, undocumentedSystems = [] }: HandoffPl
             {/* Documents */}
             {assignment.documents.length > 0 && (
               <div className="mb-4">
-                <h4 className="text-sm font-semibold text-gray-700 mb-2">
+                <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
                   Documents to take over:
                 </h4>
                 <ul className="space-y-2">
                   {assignment.documents.map((doc, docIndex) => (
                     <li
                       key={docIndex}
-                      className="text-sm pl-4 py-2 border-l-2 border-blue-400 bg-white rounded-r"
+                      className="text-sm pl-4 py-2 border-l-2 border-blue-400 dark:border-blue-600 bg-white dark:bg-dark-700/50 rounded-r dark:text-gray-300"
                     >
                       {doc}
                     </li>
@@ -125,14 +125,14 @@ export function HandoffPlan({ assignments, undocumentedSystems = [] }: HandoffPl
             {/* Systems */}
             {assignment.systems.length > 0 && (
               <div>
-                <h4 className="text-sm font-semibold text-gray-700 mb-2">
+                <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
                   Systems to learn:
                 </h4>
                 <ul className="space-y-2">
                   {assignment.systems.map((system, sysIndex) => (
                     <li
                       key={sysIndex}
-                      className="text-sm pl-4 py-2 border-l-2 border-yellow-400 bg-white rounded-r"
+                      className="text-sm pl-4 py-2 border-l-2 border-yellow-400 dark:border-yellow-600 bg-white dark:bg-dark-700/50 rounded-r dark:text-gray-300"
                     >
                       {system}
                     </li>
@@ -144,7 +144,7 @@ export function HandoffPlan({ assignments, undocumentedSystems = [] }: HandoffPl
         ))}
 
         {assignments.length === 0 && (
-          <p className="text-center text-gray-500 py-4">
+          <p className="text-center text-gray-500 dark:text-gray-400 py-4">
             No handoff assignments needed
           </p>
         )}
@@ -153,23 +153,23 @@ export function HandoffPlan({ assignments, undocumentedSystems = [] }: HandoffPl
       {/* Action Items Summary */}
       {assignments.length > 0 && (
         <>
-          <div className="mt-6 p-5 bg-gray-50 border border-gray-200 rounded-lg">
-            <h4 className="font-semibold text-sm mb-3 text-gray-900">Action Items:</h4>
-            <ul className="text-sm space-y-2 text-gray-700">
+          <div className="mt-6 p-5 bg-gray-50 dark:bg-dark-700/50 border border-gray-200 dark:border-dark-600 rounded-lg">
+            <h4 className="font-semibold text-sm mb-3 text-gray-900 dark:text-white">Action Items:</h4>
+            <ul className="text-sm space-y-2 text-gray-700 dark:text-gray-300">
               <li className="flex items-start gap-2">
-                <span className="text-blue-600 mt-0.5">•</span>
+                <span className="text-blue-600 dark:text-blue-400 mt-0.5">•</span>
                 <span>Schedule knowledge transfer sessions</span>
               </li>
               <li className="flex items-start gap-2">
-                <span className="text-blue-600 mt-0.5">•</span>
+                <span className="text-blue-600 dark:text-blue-400 mt-0.5">•</span>
                 <span>Create documentation for undocumented systems</span>
               </li>
               <li className="flex items-start gap-2">
-                <span className="text-blue-600 mt-0.5">•</span>
+                <span className="text-blue-600 dark:text-blue-400 mt-0.5">•</span>
                 <span>Update document ownership records</span>
               </li>
               <li className="flex items-start gap-2">
-                <span className="text-blue-600 mt-0.5">•</span>
+                <span className="text-blue-600 dark:text-blue-400 mt-0.5">•</span>
                 <span>Set up shadowing/pairing sessions</span>
               </li>
             </ul>

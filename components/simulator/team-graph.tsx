@@ -45,7 +45,7 @@ export default function TeamGraph({ departments, teams, people }: { departments:
   };
 
   return (
-    <div className="bg-white/80 backdrop-blur-sm rounded-3xl shadow-lg shadow-blue-100/30 border border-blue-100 p-8">
+    <div className="bg-white/80 dark:bg-dark-800/80 backdrop-blur-sm rounded-3xl shadow-lg shadow-blue-100/30 dark:shadow-blue-900/20 border border-blue-100 dark:border-blue-900/50 p-8">
       <div className="flex gap-4 mb-8 items-center">
         <select
           value={selectedDept || ""}
@@ -53,7 +53,7 @@ export default function TeamGraph({ departments, teams, people }: { departments:
             setSelectedDept(e.target.value || null);
             setSelectedTeam(null);
           }}
-          className="px-4 py-2.5 border border-blue-200 rounded-xl bg-white font-light text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-300 transition-all"
+          className="px-4 py-2.5 border border-blue-200 dark:border-blue-800 rounded-xl bg-white dark:bg-dark-700 font-light text-slate-700 dark:text-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-200 dark:focus:ring-blue-700 focus:border-blue-300 dark:focus:border-blue-600 transition-all"
         >
           <option value="">Select department</option>
           {departments.map(d => (
@@ -64,7 +64,7 @@ export default function TeamGraph({ departments, teams, people }: { departments:
         <select
           value={selectedTeam || ""}
           onChange={(e) => setSelectedTeam(e.target.value || null)}
-          className="px-4 py-2.5 border border-blue-200 rounded-xl bg-white font-light text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-300 transition-all"
+          className="px-4 py-2.5 border border-blue-200 dark:border-blue-800 rounded-xl bg-white dark:bg-dark-700 font-light text-slate-700 dark:text-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-200 dark:focus:ring-blue-700 focus:border-blue-300 dark:focus:border-blue-600 transition-all"
         >
           <option value="">Select team</option>
           {filteredTeams.map(t => (
@@ -73,20 +73,20 @@ export default function TeamGraph({ departments, teams, people }: { departments:
         </select>
 
         <div className="ml-auto flex items-center gap-3">
-          <button className="px-4 py-2 border border-blue-200 rounded-xl bg-blue-50 text-blue-700 font-light hover:bg-blue-100 hover:shadow-md transition-all" onClick={() => setScale(s => Math.min(2, s + 0.1))}>Zoom +</button>
-          <button className="px-4 py-2 border border-blue-200 rounded-xl bg-blue-50 text-blue-700 font-light hover:bg-blue-100 hover:shadow-md transition-all" onClick={() => setScale(s => Math.max(0.5, s - 0.1))}>Zoom -</button>
-          <button className="px-4 py-2 border border-blue-200 rounded-xl bg-white text-slate-600 font-light hover:bg-slate-50 hover:shadow-md transition-all" onClick={() => { setScale(1); setOffset({ x: 0, y: 0 }); }}>Reset</button>
+          <button className="px-4 py-2 border border-blue-200 dark:border-blue-800 rounded-xl bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 font-light hover:bg-blue-100 dark:hover:bg-blue-900/50 hover:shadow-md transition-all" onClick={() => setScale(s => Math.min(2, s + 0.1))}>Zoom +</button>
+          <button className="px-4 py-2 border border-blue-200 dark:border-blue-800 rounded-xl bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 font-light hover:bg-blue-100 dark:hover:bg-blue-900/50 hover:shadow-md transition-all" onClick={() => setScale(s => Math.max(0.5, s - 0.1))}>Zoom -</button>
+          <button className="px-4 py-2 border border-blue-200 dark:border-blue-800 rounded-xl bg-white dark:bg-dark-700 text-slate-600 dark:text-slate-400 font-light hover:bg-slate-50 dark:hover:bg-dark-600 hover:shadow-md transition-all" onClick={() => { setScale(1); setOffset({ x: 0, y: 0 }); }}>Reset</button>
         </div>
       </div>
 
       {!selectedTeam && (
-        <div className="text-slate-500 font-light text-center py-12">Select a team to render its hierarchy graph.</div>
+        <div className="text-slate-500 dark:text-slate-400 font-light text-center py-12">Select a team to render its hierarchy graph.</div>
       )}
 
       {selectedTeam && (
         <div className="mt-6">
           <div
-            className="overflow-hidden border border-blue-100 rounded-2xl relative bg-gradient-to-br from-slate-50/50 to-blue-50/20"
+            className="overflow-hidden border border-blue-100 dark:border-blue-900/50 rounded-2xl relative bg-gradient-to-br from-slate-50/50 to-blue-50/20 dark:from-dark-700/30 dark:to-blue-950/20"
             onWheel={onWheel}
             onMouseDown={onMouseDown}
             onMouseMove={onMouseMove}
@@ -98,7 +98,7 @@ export default function TeamGraph({ departments, teams, people }: { departments:
               <g transform={`translate(${offset.x},${offset.y}) scale(${scale})`}>
                 {/* team title at top */}
                 <g transform="translate(500,40)">
-                  <text y="6" textAnchor="middle" fontSize="18" fill="#000">{teams.find(t => t.id === selectedTeam)?.name}</text>
+                  <text y="6" textAnchor="middle" fontSize="18" fill="currentColor" className="dark:fill-blue-100 fill-slate-900">{teams.find(t => t.id === selectedTeam)?.name}</text>
                 </g>
 
                 {/* Build simple tree layout based on managerId -> children */}
@@ -168,7 +168,7 @@ export default function TeamGraph({ departments, teams, people }: { departments:
                       // path: parentBottom -> midY (vertical), midY -> child.x (horizontal), midY -> childTop (vertical)
                       const d = `M ${pPos.x} ${parentBottom} L ${pPos.x} ${midY} L ${cPos.x} ${midY} L ${cPos.x} ${childTop}`;
                       connectorElems.push(
-                        <path key={`${id}-${cid}`} d={d} stroke="#000" strokeWidth={1.25} fill="none" />
+                        <path key={`${id}-${cid}`} d={d} stroke="currentColor" strokeWidth={1.25} fill="none" className="stroke-slate-900 dark:stroke-slate-400" />
                       );
                     });
                   });
@@ -206,10 +206,10 @@ export default function TeamGraph({ departments, teams, people }: { departments:
                           width={nodeW}
                           height={nodeH}
                           rx={12}
-                          fill="#ffffff"
-                          stroke={hovered ? "#3b82f6" : "#cbd5e1"}
+                          fill="currentColor"
+                          stroke={hovered ? "#3b82f6" : "currentColor"}
                           strokeWidth={hovered ? 2.5 : 1.5}
-                          className="transition-all duration-200"
+                          className="transition-all duration-200 fill-white dark:fill-dark-800 stroke-slate-300 dark:stroke-slate-600"
                         />
 
                         {/* Shine overlay */}
@@ -225,8 +225,8 @@ export default function TeamGraph({ departments, teams, people }: { departments:
                           />
                         )}
 
-                        <text y={-8} textAnchor="middle" fontSize={14} fontWeight={600} fill={hovered ? "#1e40af" : "#1e293b"}>{n.name}</text>
-                        <text y={12} textAnchor="middle" fontSize={12} fill={hovered ? "#3b82f6" : "#64748b"}>{n.role}</text>
+                        <text y={-8} textAnchor="middle" fontSize={14} fontWeight={600} fill={hovered ? "#1e40af" : "currentColor"} className="dark:fill-blue-100 fill-slate-900">{n.name}</text>
+                        <text y={12} textAnchor="middle" fontSize={12} fill={hovered ? "#3b82f6" : "currentColor"} className="dark:fill-slate-400 fill-slate-600">{n.role}</text>
                       </g>
                     );
                   });
@@ -242,7 +242,7 @@ export default function TeamGraph({ departments, teams, people }: { departments:
             </svg>
           </div>
 
-          <div className="text-sm text-slate-500 font-light mt-6 text-center">Click a person node (or press Enter) to open their lanyard + handoff view. Use mouse-wheel or the buttons to zoom; drag to pan.</div>
+          <div className="text-sm text-slate-500 dark:text-slate-400 font-light mt-6 text-center">Click a person node (or press Enter) to open their lanyard + handoff view. Use mouse-wheel or the buttons to zoom; drag to pan.</div>
         </div>
       )}
     </div>

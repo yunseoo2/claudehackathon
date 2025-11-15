@@ -33,7 +33,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
+    <html lang="en" className="dark">
       <head></head>
       <body className={cn(inter.className, "antialiased")}>
         <Toaster position="top-center" richColors />
