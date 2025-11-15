@@ -156,3 +156,84 @@ def recommend_onboarding(db: Session, mode: str, team: str = None, person_leavin
         return call_claude(prompt)
 
     return "invalid mode"
+
+
+### New read-only helpers for API endpoints
+
+
+def list_topics(db: Session):
+    """Return a lightweight list of topics and simple stats."""
+    out = []
+    for t in db.query(models.Topic).order_by(models.Topic.name).all():
+        docs = t.documents
+        owners = set(d.owner_id for d in docs if d.owner_id)
+        out.append({
+            "id": t.id,
+            "name": t.name,
+            "docs_count": len(docs),
+            "owners_count": len(owners),
+        })
+    return out
+
+
+def get_topic_detail(db: Session, topic_id: int):
+    topic = db.query(models.Topic).filter(models.Topic.id == topic_id).first()
+    if not topic:
+        return None
+    docs = []
+    for d in topic.documents:
+        owners_count = 1 if d.owner_id else 0
+        staleness_days = (datetime.utcnow() - d.last_updated).days if d.last_updated else 999
+        score = 0
+        if owners_count <= 1:
+            score += 40
+        score += min(30, staleness_days // 7)
+        if d.critical:
+            score += 30
+        score = min(100, score)
+        docs.append({
+            "id": d.id,
+            "title": d.title,
+            "owner_id": d.owner_id,
+            "team": d.team,
+            "risk_score": score,
+            "staleness_days": staleness_days,
+        })
+
+    return {
+        "id": topic.id,
+        "name": topic.name,
+        "docs": docs,
+    }
+
+
+def documents_risky(db: Session, threshold: int = 60, limit: int = 0):
+    """Return documents whose computed risk_score >= threshold. If limit>0, return top-N by score."""
+    all_docs = compute_documents_at_risk(db)["documents"]
+    filtered = [d for d in all_docs if d["risk_score"] >= threshold]
+    filtered.sort(key=lambda x: x["risk_score"], reverse=True)
+    if limit and limit > 0:
+        filtered = filtered[:limit]
+    return {"threshold": threshold, "count": len(filtered), "documents": filtered}
+
+
+def dashboard_stats(db: Session):
+    """Return simple dashboard counters and aggregated risk metrics."""
+    people_count = db.query(models.Person).count()
+    docs_count = db.query(models.Document).count()
+    topics_count = db.query(models.Topic).count()
+    systems_count = db.query(models.System).count()
+    critical_count = db.query(models.Document).filter(models.Document.critical == True).count()
+    docs_info = compute_documents_at_risk(db)["documents"]
+    at_risk_count = sum(1 for d in docs_info if d["risk_score"] >= 60)
+    avg_risk = sum(d["risk_score"] for d in docs_info) / (len(docs_info) or 1)
+
+    return {
+        "people": people_count,
+        "documents": docs_count,
+        "topics": topics_count,
+        "systems": systems_count,
+        "critical_documents": critical_count,
+        "at_risk_documents": at_risk_count,
+        "avg_document_risk": round(avg_risk, 1),
+    }

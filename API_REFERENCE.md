@@ -45,8 +45,12 @@ Root endpoint with API information.
   "endpoints": {
     "simulate_departure": "POST /api/simulate-departure",
     "documents_at_risk": "GET /api/documents/at-risk",
+    "documents_risky": "GET /api/documents/risky",
     "rag_query": "POST /api/query",
-    "recommend_onboarding": "POST /api/recommend-onboarding"
+    "recommend_onboarding": "POST /api/recommend-onboarding",
+    "topics_list": "GET /api/topics",
+    "topic_detail": "GET /api/topics/{topic_id}",
+    "dashboard_stats": "GET /api/dashboard/stats"
   }
 }
 ```
@@ -406,6 +410,118 @@ curl -X POST http://localhost:8000/api/recommend-onboarding \
 ```
 
 ---
+
+### 5. GET `/api/topics`
+
+**Summary:** List all topics in the corpus with small summary statistics.
+
+**Query Parameters:** None
+
+**Response:**
+```json
+{
+  "topics": [
+    {"id": 1, "name": "Deployments", "docs_count": 3, "owners_count": 2},
+    {"id": 2, "name": "CI/CD", "docs_count": 2, "owners_count": 1}
+  ]
+}
+```
+
+**Example:**
+```bash
+curl http://localhost:8000/api/topics | jq
+```
+
+---
+
+### 6. GET `/api/topics/{topic_id}`
+
+**Summary:** Get detailed information about a topic and the documents associated with it. Useful to power a topic modal.
+
+**Path Parameters:**
+| Name | Type | Required | Description |
+|------|------|----------|-------------|
+| topic_id | integer | Yes | ID of the topic |
+
+**Response:**
+```json
+{
+  "id": 1,
+  "name": "Deployments",
+  "docs": [
+    {"id": 1, "title": "Deployment Runbook", "owner_id": 1, "team": "Infra", "risk_score": 72, "staleness_days": 10},
+    {"id": 6, "title": "CI/CD Troubleshooting Guide", "owner_id": 1, "team": "Infra", "risk_score": 45, "staleness_days": 3}
+  ]
+}
+```
+
+**Error (404):**
+```json
+{ "detail": "Topic not found" }
+```
+
+**Example:**
+```bash
+curl http://localhost:8000/api/topics/1 | jq
+```
+
+---
+
+### 7. GET `/api/documents/risky`
+
+**Summary:** Return documents whose computed risk score meets or exceeds a threshold. Useful for a focused remediation view.
+
+**Query Parameters:**
+| Parameter | Type | Required | Default | Description |
+|-----------|------|----------|---------|-------------|
+| threshold | integer | No | 60 | Minimum risk score (0-100) to include |
+| limit | integer | No | 0 | If >0, return top-N results by risk score |
+
+**Response:**
+```json
+{
+  "threshold": 60,
+  "count": 3,
+  "documents": [
+    {"id": 1, "title": "Deployment Runbook", "risk_score": 85},
+    {"id": 4, "title": "Vendor Payout Engine Guide", "risk_score": 78}
+  ]
+}
+```
+
+**Examples:**
+```bash
+# Default threshold
+curl http://localhost:8000/api/documents/risky | jq
+
+# Lower threshold and limit
+curl 'http://localhost:8000/api/documents/risky?threshold=50&limit=5' | jq
+```
+
+---
+
+### 8. GET `/api/dashboard/stats`
+
+**Summary:** Counters and aggregated risk metrics for the dashboard header.
+
+**Response:**
+```json
+{
+  "people": 12,
+  "documents": 22,
+  "topics": 10,
+  "systems": 6,
+  "critical_documents": 4,
+  "at_risk_documents": 5,
+  "avg_document_risk": 54.2
+}
+```
+
+**Example:**
+```bash
+curl http://localhost:8000/api/dashboard/stats | jq
+```
+
 
 ## Common Response Patterns
 
