@@ -25,14 +25,8 @@ def simulate_departure(req: SimulateRequest, dbs: Session = Depends(get_db)):
 @router.get("/documents/at-risk")
 def documents_at_risk(recommend: bool = Query(False), dbs: Session = Depends(get_db)):
     res = services.compute_documents_at_risk(dbs)
-    if recommend:
-        prompt = "Give brief improvement recommendations based on the risks."
-        rec = services.call_claude if hasattr(services, "call_claude") else None
-        # use services' anthopic wrapper
-        from .anthropic_client import call_claude
-
-        rec_text = call_claude(prompt)
-        res["recommendations"] = rec_text
+    # Always return empty recommendations (AI recommendations removed per user request)
+    res["recommendations"] = ""
     return res
 
 
