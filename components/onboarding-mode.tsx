@@ -58,7 +58,7 @@ export function OnboardingMode() {
   useEffect(() => {
     const fetchTeams = async () => {
       try {
-        const res = await fetch("http://localhost:8001/api/teams");
+        const res = await fetch("/api/teams");
         if (!res.ok) {
           throw new Error("Failed to fetch teams");
         }
@@ -81,7 +81,7 @@ export function OnboardingMode() {
     const fetchRoles = async () => {
       setLoadingRoles(true);
       try {
-        const res = await fetch(`http://localhost:8001/api/teams/${encodeURIComponent(selectedTeam.name)}/roles`);
+        const res = await fetch(`/api/teams/${encodeURIComponent(selectedTeam.name)}/roles`);
         if (!res.ok) {
           throw new Error("Failed to fetch roles");
         }
@@ -116,7 +116,7 @@ export function OnboardingMode() {
     setPlan(null);
 
     try {
-      const res = await fetch("http://localhost:8001/api/onboarding/personalized", {
+      const res = await fetch("/api/onboarding/personalized", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -182,7 +182,7 @@ export function OnboardingMode() {
         <motion.div
           initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
-          className="bg-card rounded-2xl shadow-sm border border-border p-10"
+          className="bg-dark-800 rounded-2xl shadow-sm border border-border p-10"
         >
           <div className="mb-8 space-y-3">
             <div className="flex items-center gap-3">
@@ -202,7 +202,7 @@ export function OnboardingMode() {
 
           <div className="space-y-6">
             {loadingTeams ? (
-              <div className="flex flex-col items-center justify-center py-16 bg-muted/20 rounded-xl border border-border/50">
+              <div className="flex flex-col items-center justify-center py-16 bg-dark-700 rounded-xl border border-border/50">
                 <Loader2 className="w-8 h-8 animate-spin text-primary mb-3" />
                 <span className="text-muted-foreground">Loading teams...</span>
               </div>
@@ -215,8 +215,8 @@ export function OnboardingMode() {
                       onClick={() => handleTeamSelect(team)}
                       className={`p-6 rounded-xl border transition-all text-left ${
                         selectedTeam?.id === team.id
-                          ? "border-primary bg-primary/5 shadow-sm"
-                          : "border-border bg-card hover:border-primary/30 hover:bg-muted/20"
+                          ? "border-primary bg-primary/20 shadow-sm"
+                          : "border-border bg-dark-700 hover:border-primary/30 hover:bg-dark-600"
                       }`}
                     >
                       <div className="flex items-center gap-4">
@@ -256,7 +256,7 @@ export function OnboardingMode() {
         <motion.div
           initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
-          className="bg-card rounded-2xl shadow-sm border border-border p-10"
+          className="bg-dark-800 rounded-2xl shadow-sm border border-border p-10"
         >
           <div className="mb-8 space-y-3">
             <div className="flex items-center justify-between">
@@ -285,7 +285,7 @@ export function OnboardingMode() {
 
           <div className="space-y-6">
             {loadingRoles ? (
-              <div className="flex flex-col items-center justify-center py-16 bg-muted/20 rounded-xl border border-border/50">
+              <div className="flex flex-col items-center justify-center py-16 bg-dark-700 rounded-xl border border-border/50">
                 <Loader2 className="w-8 h-8 animate-spin text-primary mb-3" />
                 <span className="text-muted-foreground">Loading roles...</span>
               </div>
@@ -299,8 +299,8 @@ export function OnboardingMode() {
                         onClick={() => handleRoleSelect(role)}
                         className={`p-6 rounded-xl border transition-all text-left ${
                           selectedRole?.id === role.id
-                            ? "border-primary bg-primary/5 shadow-sm"
-                            : "border-border bg-card hover:border-primary/30 hover:bg-muted/20"
+                            ? "border-primary bg-primary/20 shadow-sm"
+                            : "border-border bg-dark-700 hover:border-primary/30 hover:bg-dark-600"
                         }`}
                       >
                         <div className="flex items-center gap-4">
@@ -330,7 +330,7 @@ export function OnboardingMode() {
                     ))}
                   </div>
                 ) : (
-                  <div className="text-center py-12 bg-muted/20 rounded-xl border border-border/50">
+                  <div className="text-center py-12 bg-dark-700 rounded-xl border border-border/50">
                     <UserCircle className="w-12 h-12 text-muted-foreground mx-auto mb-3" />
                     <p className="text-muted-foreground">No roles found for this team.</p>
                     <p className="text-sm text-muted-foreground/70 mt-1">You can still generate a general onboarding plan.</p>
@@ -421,7 +421,7 @@ export function OnboardingMode() {
           </div>
 
           {/* Main Plan */}
-          <div className="bg-card rounded-2xl shadow-sm border border-border p-10">
+          <div className="bg-dark-800 rounded-2xl shadow-sm border border-border p-10">
             <div className="flex items-start gap-4 mb-8">
               <div className="w-14 h-14 bg-primary/10 rounded-xl flex items-center justify-center flex-shrink-0">
                 <BookOpen className="w-7 h-7 text-primary" />
@@ -444,7 +444,7 @@ export function OnboardingMode() {
 
           {/* Documents to Read */}
           {plan.relevant_docs && plan.relevant_docs.length > 0 && (
-            <div className="bg-card rounded-2xl shadow-sm border border-border p-10">
+            <div className="bg-dark-800 rounded-2xl shadow-sm border border-border p-10">
               <div className="flex items-start gap-4 mb-8">
                 <div className="w-12 h-12 bg-blue-50 rounded-xl flex items-center justify-center flex-shrink-0">
                   <FileText className="w-6 h-6 text-blue-600" />
@@ -462,7 +462,7 @@ export function OnboardingMode() {
                 {plan.relevant_docs.map((doc, idx) => (
                   <div
                     key={doc.id}
-                    className="p-5 bg-blue-50/30 rounded-xl border border-blue-100 hover:border-blue-300 hover:bg-blue-50/50 transition-all"
+                    className="p-5 bg-dark-700 rounded-xl border border-blue-900/30 hover:border-blue-700 hover:bg-dark-600 transition-all"
                   >
                     <div className="flex items-start gap-4">
                       <div className="w-10 h-10 bg-blue-100 text-blue-700 rounded-xl flex items-center justify-center text-[16px] font-medium flex-shrink-0">
@@ -484,7 +484,7 @@ export function OnboardingMode() {
 
           {/* Key Contacts */}
           {plan.key_contacts && plan.key_contacts.length > 0 && (
-            <div className="bg-card rounded-2xl shadow-sm border border-border p-10">
+            <div className="bg-dark-800 rounded-2xl shadow-sm border border-border p-10">
               <div className="flex items-start gap-4 mb-8">
                 <div className="w-12 h-12 bg-purple-50 rounded-xl flex items-center justify-center flex-shrink-0">
                   <User className="w-6 h-6 text-purple-600" />
@@ -502,7 +502,7 @@ export function OnboardingMode() {
                 {plan.key_contacts.map((contact) => (
                   <div
                     key={contact.id}
-                    className="p-5 bg-purple-50/30 rounded-xl border border-purple-100 hover:border-purple-300 hover:bg-purple-50/50 transition-all"
+                    className="p-5 bg-dark-700 rounded-xl border border-purple-900/30 hover:border-purple-700 hover:bg-dark-600 transition-all"
                   >
                     <div className="flex items-center gap-4">
                       <div className="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center flex-shrink-0">

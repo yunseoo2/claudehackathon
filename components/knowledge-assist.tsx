@@ -6,7 +6,7 @@ import { OnboardingMode } from "./onboarding-mode";
 
 export function KnowledgeAssist() {
   return (
-    <div className="flex flex-col min-h-screen bg-background">
+    <div className="flex flex-col min-h-screen bg-dark-900 dark">
       {/* Header - Clean and spacious */}
       <header className="border-b border-border bg-card/50 backdrop-blur-sm sticky top-0 z-10">
         <div className="max-w-5xl mx-auto px-8 py-10">

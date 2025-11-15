@@ -277,6 +277,8 @@ def dashboard_stats(db: Session):
         "critical_documents": critical_count,
         "at_risk_documents": at_risk_count,
         "avg_document_risk": round(avg_risk, 1),
+    }
+
 # New functions for onboarding assistant
 def get_all_teams(db: Session) -> List[Dict[str, Any]]:
     """Get all teams in the organization."""
