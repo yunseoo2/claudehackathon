@@ -49,27 +49,33 @@ export default function RiskGalaxy({ topics, onTopicClick }: RiskGalaxyProps) {
 
   // Calculate bubble size based on risk score (bigger risk = bigger circle)
   const getBubbleSize = (riskScore: number) => {
-    // Min 80px, max 180px based on risk score (0-100)
-    return 80 + (riskScore / 100) * 100;
+    // Min 100px, max 200px based on risk score (0-100)
+    // Larger sizes to ensure text fits comfortably
+    return 100 + (riskScore / 100) * 100;
   };
 
   // Scatter topics across the canvas with some randomness but keep them within bounds
   const getPosition = (index: number, total: number, size: number) => {
-    // Use golden angle to distribute points
+    // Use golden angle to distribute points for natural spacing
     const goldenAngle = 137.5;
     const angle = (index * goldenAngle * Math.PI) / 180;
-    const radius = 25 + (index / total) * 35; // 25-60% from center
+
+    // Calculate radius percentage, accounting for bubble size to keep within bounds
+    // Increase spacing to prevent overlap - scale radius by bubble size
+    const baseRadius = 18; // Increased base distance from center
+    const maxRadius = 38; // Increased max distance
+    const radiusPercent = baseRadius + (index / total) * maxRadius;
 
     return {
-      x: 50 + radius * Math.cos(angle),
-      y: 50 + radius * Math.sin(angle),
+      x: 50 + radiusPercent * Math.cos(angle),
+      y: 50 + radiusPercent * Math.sin(angle),
     };
   };
 
   return (
-    <div className="relative w-full h-[800px] bg-gradient-to-b from-black via-gray-900 to-black rounded-3xl border border-white/10 overflow-visible">
+    <div className="relative w-full h-[800px] bg-gradient-to-b from-black via-gray-900 to-black rounded-3xl border border-white/10 overflow-hidden p-8">
       {/* Background grid */}
-      <div className="absolute inset-0 opacity-10 pointer-events-none rounded-3xl overflow-hidden">
+      <div className="absolute inset-8 opacity-10 pointer-events-none rounded-3xl overflow-hidden">
         <svg className="w-full h-full">
           <defs>
             <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
@@ -81,14 +87,14 @@ export default function RiskGalaxy({ topics, onTopicClick }: RiskGalaxyProps) {
       </div>
 
       {/* Topic Bubbles */}
-      <div className="relative w-full h-full">
+      <div className="relative w-full h-full" style={{ overflow: 'visible' }}>
         {topics.map((topic, index) => {
           const colors = getTopicColor(topic.riskLevel);
           const size = getBubbleSize(topic.riskScore);
           const position = getPosition(index, topics.length, size);
 
           return (
-            <div key={topic.id} className="absolute" style={{ left: `${position.x}%`, top: `${position.y}%` }}>
+            <div key={topic.id} className="absolute" style={{ left: `${position.x}%`, top: `${position.y}%`, zIndex: hoveredTopic === topic.id ? 100 : 1 }}>
               <motion.div
                 className="relative cursor-pointer group"
                 style={{
@@ -105,7 +111,7 @@ export default function RiskGalaxy({ topics, onTopicClick }: RiskGalaxyProps) {
                   duration: 0.6,
                   delay: index * 0.1,
                 }}
-                whileHover={{ scale: 1.15, zIndex: 100 }}
+                whileHover={{ scale: 1.15 }}
                 onClick={() => onTopicClick(topic.id)}
                 onHoverStart={() => setHoveredTopic(topic.id)}
                 onHoverEnd={() => setHoveredTopic(null)}
@@ -124,13 +130,13 @@ export default function RiskGalaxy({ topics, onTopicClick }: RiskGalaxyProps) {
 
                 {/* Circle body */}
                 <div
-                  className={`absolute inset-0 bg-gradient-to-br ${colors.base} rounded-full shadow-2xl ${colors.glow} ring-2 ${colors.ring} backdrop-blur-sm flex items-center justify-center`}
+                  className={`absolute inset-0 bg-gradient-to-br ${colors.base} rounded-full shadow-2xl ${colors.glow} ring-2 ${colors.ring} backdrop-blur-sm flex items-center justify-center p-4`}
                 >
-                  <div className="text-center px-2 text-white">
-                    <p className="font-bold text-sm leading-tight mb-1 drop-shadow-lg line-clamp-2">
+                  <div className="text-center text-white w-full px-2">
+                    <p className="font-bold text-base leading-tight mb-2 drop-shadow-lg line-clamp-3">
                       {topic.name}
                     </p>
-                    <p className="text-xs opacity-90 font-semibold">
+                    <p className="text-sm opacity-90 font-semibold">
                       {topic.riskScore}
                     </p>
                   </div>
@@ -151,39 +157,42 @@ export default function RiskGalaxy({ topics, onTopicClick }: RiskGalaxyProps) {
                   />
                 )}
 
-                {/* Hover tooltip - shows on top */}
+                {/* Hover tooltip - positioned directly above bubble */}
                 {hoveredTopic === topic.id && (
                   <motion.div
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className="absolute left-1/2 -translate-x-1/2 -top-24 bg-black/90 backdrop-blur-xl border border-white/20 rounded-xl px-4 py-3 text-white min-w-[200px] z-50 pointer-events-none"
-                    style={{ boxShadow: '0 10px 40px rgba(0,0,0,0.5)' }}
+                    initial={{ opacity: 0, scale: 0.8 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ duration: 0.15, ease: "easeOut" }}
+                    className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 bg-black/95 backdrop-blur-xl border border-white/20 rounded-xl px-4 py-3 text-white min-w-[220px] pointer-events-none shadow-2xl"
+                    style={{
+                      zIndex: 1000,
+                    }}
                   >
                     <h4 className="font-serif text-base font-bold mb-2">{topic.name}</h4>
                     <div className="space-y-1 text-xs text-gray-300">
-                      <div className="flex justify-between">
+                      <div className="flex justify-between gap-3">
                         <span>Risk Score:</span>
                         <span className="font-bold text-white">{topic.riskScore}</span>
                       </div>
-                      <div className="flex justify-between">
+                      <div className="flex justify-between gap-3">
                         <span>Documents:</span>
                         <span className="font-bold text-white">{topic.documentCount}</span>
                       </div>
                       {topic.criticalDocs !== undefined && (
-                        <div className="flex justify-between">
+                        <div className="flex justify-between gap-3">
                           <span>Critical:</span>
                           <span className="font-bold text-red-400">{topic.criticalDocs}</span>
                         </div>
                       )}
                       {topic.avgBusFactor !== undefined && (
-                        <div className="flex justify-between">
+                        <div className="flex justify-between gap-3">
                           <span>Bus Factor:</span>
                           <span className="font-bold text-white">{topic.avgBusFactor.toFixed(1)}</span>
                         </div>
                       )}
                     </div>
-                    {/* Arrow pointing down */}
-                    <div className="absolute left-1/2 -translate-x-1/2 -bottom-2 w-4 h-4 bg-black/90 border-b border-r border-white/20 rotate-45" />
+                    {/* Arrow pointing down to bubble */}
+                    <div className="absolute left-1/2 -translate-x-1/2 -bottom-2 w-4 h-4 bg-black/95 border-b border-r border-white/20 rotate-45" />
                   </motion.div>
                 )}
               </motion.div>

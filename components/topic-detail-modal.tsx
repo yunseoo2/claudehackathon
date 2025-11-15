@@ -117,8 +117,8 @@ const TOPIC_DOCUMENTS: Record<string, Document[]> = {
 // Sub-component: Metric Card
 function MetricCard({ label, value, color }: { label: string; value: string; color: string }) {
   return (
-    <div className="bg-gray-50 rounded-xl p-6 border border-gray-200 hover:shadow-md transition-all">
-      <p className="text-xs text-gray-500 uppercase tracking-wide mb-2 font-semibold">{label}</p>
+    <div className="bg-white/5 backdrop-blur-xl rounded-xl p-6 border border-white/10 hover:shadow-2xl hover:border-white/20 transition-all">
+      <p className="text-xs text-gray-400 uppercase tracking-wide mb-2 font-semibold">{label}</p>
       <p className={`text-4xl font-bold tracking-tight ${color}`}>{value}</p>
     </div>
   );
@@ -150,25 +150,25 @@ export function TopicDetailModal({
     <AnimatePresence>
       {/* Full Page Modal */}
       <motion.div
-        className="fixed inset-0 bg-gray-50 z-50 overflow-hidden flex flex-col"
+        className="fixed inset-0 bg-gradient-to-b from-[#0A0A0F] via-[#121218] to-[#0A0A0F] z-50 overflow-hidden flex flex-col"
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
         exit={{ opacity: 0, scale: 0.95 }}
         transition={{ duration: 0.3 }}
       >
         {/* Header */}
-        <div className="bg-white border-b border-gray-200 sticky top-0 z-10 shadow-sm">
+        <div className="bg-white/5 backdrop-blur-xl border-b border-white/10 sticky top-0 z-10 shadow-2xl">
           <div className="max-w-7xl mx-auto px-8 py-6">
             <div className="flex items-start justify-between">
               <div className="flex-1">
-                <h1 className="font-serif text-4xl font-bold text-gray-900 mb-3">
+                <h1 className="font-serif text-4xl font-bold text-white mb-3">
                   {topicName}
                 </h1>
                 <RiskBadge riskLevel={riskLevel as 'low' | 'medium' | 'high'} showLabel size="lg" />
               </div>
               <button
                 onClick={onClose}
-                className="text-gray-400 hover:text-gray-900 transition-colors p-3 hover:bg-gray-100 rounded-xl flex items-center gap-2"
+                className="text-gray-400 hover:text-white transition-colors p-3 hover:bg-white/10 rounded-xl flex items-center gap-2"
               >
                 <X size={24} />
                 <span className="text-sm font-medium">Close</span>
@@ -178,55 +178,55 @@ export function TopicDetailModal({
         </div>
 
         {/* Metrics */}
-        <div className="bg-white border-b border-gray-200">
+        <div className="bg-white/5 backdrop-blur-xl border-b border-white/10">
           <div className="max-w-7xl mx-auto px-8 py-8">
             <div className="grid grid-cols-4 gap-6">
               <MetricCard
                 label="Risk Score"
                 value={`${riskScore}/100`}
-                color="text-blue-600"
+                color="text-cyan-400"
               />
               <MetricCard
                 label="Documents"
                 value={documents.length.toString()}
-                color="text-gray-900"
+                color="text-white"
               />
               <MetricCard
                 label="Avg Bus Factor"
                 value={avgBusFactor.toFixed(1)}
-                color="text-purple-600"
+                color="text-purple-400"
               />
               <MetricCard
                 label="Critical Docs"
                 value={criticalCount.toString()}
-                color="text-red-600"
+                color="text-red-400"
               />
             </div>
           </div>
         </div>
 
         {/* Content */}
-        <div className="flex-1 overflow-y-auto bg-gray-50">
+        <div className="flex-1 overflow-y-auto">
           <div className="max-w-7xl mx-auto px-8 py-8 space-y-8">
             {/* AI Recommendations */}
             <section>
-              <h2 className="font-serif text-2xl font-bold text-gray-900 mb-4 flex items-center gap-2">
-                <Lightbulb className="text-blue-500" size={26} />
+              <h2 className="font-serif text-2xl font-bold text-white mb-4 flex items-center gap-2">
+                <Lightbulb className="text-cyan-400" size={26} />
                 AI-Powered Recommendations
               </h2>
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
                 {recommendations.map((rec, index) => (
                   <motion.div
                     key={index}
-                    className="relative bg-white border border-blue-200 rounded-xl p-5
-                             hover:shadow-lg transition-all group overflow-hidden"
+                    className="relative bg-white/5 backdrop-blur-xl border border-white/10 rounded-xl p-5
+                             hover:shadow-2xl hover:shadow-cyan-500/20 hover:border-cyan-500/50 transition-all group overflow-hidden"
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: index * 0.1 }}
                     whileHover={{ y: -4 }}
                   >
-                    <div className="absolute inset-0 bg-gradient-to-br from-blue-50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-                    <p className="text-sm text-gray-700 leading-relaxed relative z-10">{rec}</p>
+                    <div className="absolute inset-0 bg-gradient-to-br from-cyan-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                    <p className="text-sm text-gray-300 leading-relaxed relative z-10">{rec}</p>
                   </motion.div>
                 ))}
               </div>
@@ -234,8 +234,8 @@ export function TopicDetailModal({
 
             {/* Documents */}
             <section>
-              <h2 className="font-serif text-2xl font-bold text-gray-900 mb-4 flex items-center gap-2">
-                <FileText className="text-blue-500" size={26} />
+              <h2 className="font-serif text-2xl font-bold text-white mb-4 flex items-center gap-2">
+                <FileText className="text-cyan-400" size={26} />
                 Documents ({documents.length})
               </h2>
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
@@ -244,25 +244,25 @@ export function TopicDetailModal({
               .map((doc, index) => (
                 <motion.div
                   key={doc.id}
-                  className="relative bg-white border border-gray-200 rounded-xl p-5 hover:shadow-lg
-                           transition-all cursor-pointer group overflow-hidden"
+                  className="relative bg-white/5 backdrop-blur-xl border border-white/10 rounded-xl p-5 hover:shadow-2xl
+                           hover:shadow-purple-500/20 hover:border-purple-500/50 transition-all cursor-pointer group overflow-hidden"
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: index * 0.05 }}
                   whileHover={{ y: -4 }}
                 >
-                  <div className="absolute inset-0 bg-gradient-to-br from-gray-50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                  <div className="absolute inset-0 bg-gradient-to-br from-purple-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
                   <div className="flex items-start justify-between mb-3 relative z-10">
                     <div className="flex-1">
                       <div className="flex items-center gap-2 mb-2">
-                        <h3 className="font-serif font-semibold text-lg text-gray-900">{doc.title}</h3>
+                        <h3 className="font-serif font-semibold text-lg text-white">{doc.title}</h3>
                         {doc.critical && (
-                          <span className="bg-red-100 text-red-700 border border-red-200 px-2 py-0.5 rounded-full text-xs font-semibold uppercase tracking-wide">
+                          <span className="bg-red-500/20 text-red-300 border border-red-500/30 px-2 py-0.5 rounded-full text-xs font-semibold uppercase tracking-wide">
                             Critical
                           </span>
                         )}
                       </div>
-                      <div className="flex items-center gap-4 text-sm text-gray-600">
+                      <div className="flex items-center gap-4 text-sm text-gray-400">
                         <span className="flex items-center gap-1">
                           <Users className="w-4 h-4" />
                           {doc.owners.length} owner{doc.owners.length !== 1 ? 's' : ''}
@@ -282,22 +282,22 @@ export function TopicDetailModal({
                         {doc.owners.slice(0, 3).map((owner, i) => (
                           <div
                             key={i}
-                            className="w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center
-                                     text-white text-xs font-semibold"
+                            className="w-8 h-8 rounded-full bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center
+                                     text-white text-xs font-semibold border border-white/20"
                             title={owner}
                           >
                             {owner.charAt(0).toUpperCase()}
                           </div>
                         ))}
                         {doc.owners.length > 3 && (
-                          <span className="text-xs text-gray-500">+{doc.owners.length - 3} more</span>
+                          <span className="text-xs text-gray-400">+{doc.owners.length - 3} more</span>
                         )}
                       </div>
                     </div>
                     <div className="flex flex-col items-end gap-2">
                       <div className="text-right">
-                        <div className="text-2xl font-bold text-gray-900">{doc.riskScore}</div>
-                        <div className="text-xs text-gray-500 uppercase tracking-wide">risk</div>
+                        <div className="text-2xl font-bold text-white">{doc.riskScore}</div>
+                        <div className="text-xs text-gray-400 uppercase tracking-wide">risk</div>
                       </div>
                     </div>
                   </div>
@@ -305,19 +305,19 @@ export function TopicDetailModal({
                   {/* Risk Factors */}
                   <div className="flex items-center gap-2 text-xs flex-wrap">
                     {doc.busFactor === 1 && (
-                      <div className="flex items-center gap-1 bg-red-50 text-red-700 px-2 py-1 rounded-full">
+                      <div className="flex items-center gap-1 bg-red-500/20 text-red-300 border border-red-500/30 px-2 py-1 rounded-full">
                         <AlertTriangle className="w-3 h-3" />
                         <span className="font-medium">Single owner</span>
                       </div>
                     )}
                     {doc.daysSinceUpdate > 180 && (
-                      <div className="flex items-center gap-1 bg-amber-50 text-amber-700 px-2 py-1 rounded-full">
+                      <div className="flex items-center gap-1 bg-amber-500/20 text-amber-300 border border-amber-500/30 px-2 py-1 rounded-full">
                         <TrendingDown className="w-3 h-3" />
                         <span className="font-medium">Outdated</span>
                       </div>
                     )}
                     {doc.owners.some((o) => o.includes("left")) && (
-                      <div className="flex items-center gap-1 bg-red-50 text-red-700 px-2 py-1 rounded-full">
+                      <div className="flex items-center gap-1 bg-red-500/20 text-red-300 border border-red-500/30 px-2 py-1 rounded-full">
                         <AlertTriangle className="w-3 h-3" />
                         <span className="font-medium">Owner left</span>
                       </div>
@@ -331,17 +331,17 @@ export function TopicDetailModal({
         </div>
 
         {/* Footer Actions */}
-        <div className="bg-white border-t border-gray-200 sticky bottom-0 shadow-lg">
+        <div className="bg-white/5 backdrop-blur-xl border-t border-white/10 sticky bottom-0 shadow-2xl">
           <div className="max-w-7xl mx-auto px-8 py-6">
             <div className="flex items-center justify-between">
-              <div className="text-sm text-gray-600">
+              <div className="text-sm text-gray-400">
                 Showing {documents.length} document{documents.length !== 1 ? "s" : ""} • {criticalCount} critical
               </div>
               <div className="flex gap-3">
-                <Button variant="outline" onClick={onClose} className="rounded-full px-6">
+                <Button variant="outline" onClick={onClose} className="rounded-full px-6 bg-white/10 hover:bg-white/20 text-white border-white/20">
                   Close
                 </Button>
-                <Button className="rounded-full bg-blue-600 hover:bg-blue-700 px-6">
+                <Button className="rounded-full bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700 px-6 text-white border-0">
                   Generate Action Plan
                 </Button>
               </div>

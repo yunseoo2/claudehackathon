@@ -237,7 +237,7 @@ export default function ResilienceDashboard() {
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
           >
-            🌌 Galaxy View
+            Galaxy View
           </motion.button>
           <motion.button
             onClick={() => setViewMode('grid')}
@@ -249,7 +249,7 @@ export default function ResilienceDashboard() {
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
           >
-            📊 Grid View
+            Grid View
           </motion.button>
         </div>
 
@@ -287,7 +287,6 @@ export default function ResilienceDashboard() {
             whileInView={{ opacity: 1 }}
             viewport={{ once: true }}
           >
-            <span className="text-5xl">⚠️</span>
             Highest Risk Documents
           </motion.h2>
 
