@@ -97,7 +97,7 @@ export function Landing() {
       title: "Resilience Radar",
       description: "Visualize your team's knowledge fragility with real-time bus factor analytics. Discover single points of failure and strengthen your organization's memory.",
       icon: <Activity className="w-7 h-7 text-emerald-600" />,
-      href: "/dashboard",
+      href: "/dashboard/resilence",
       color: "bg-emerald-50 border border-emerald-200/60"
     },
     {
@@ -222,7 +222,7 @@ export function Landing() {
                   </span>
                 </button>
               </Link>
-              <Link href="/dashboard">
+              <Link href="/dashboard/resilence">
                 <button className="px-10 py-5 bg-white/10 backdrop-blur-sm text-white rounded-2xl font-light text-[16px] hover:bg-white/20 transition-all duration-300 border border-white/20 hover:border-white/30">
                   Explore Dashboard
                 </button>
