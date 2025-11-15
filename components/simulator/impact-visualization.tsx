@@ -22,10 +22,10 @@ export function ImpactVisualization({ topics }: ImpactVisualizationProps) {
 
   return (
     <div className="bg-white dark:bg-dark-700/30 border border-border dark:border-dark-600 rounded-xl p-8 shadow-sm">
-      <h2 className="text-2xl font-semibold mb-2 text-gray-900 dark:text-white">
+      <h2 className="text-3xl font-light mb-3 text-gray-900 dark:text-white">
         Topics Impacted
       </h2>
-      <p className="text-sm text-gray-600 dark:text-gray-400 mb-6">
+      <p className="text-base text-gray-600 dark:text-gray-400 mb-6">
         Knowledge areas that will degrade in health
       </p>
 
@@ -39,11 +39,11 @@ export function ImpactVisualization({ topics }: ImpactVisualizationProps) {
           return (
             <div
               key={topic.id}
-              className="p-6 border border-gray-200 dark:border-dark-600 rounded-lg bg-gray-50/50 dark:bg-dark-700/50"
+              className="p-8 border border-gray-200 dark:border-dark-600 rounded-lg bg-gray-50/50 dark:bg-dark-700/50"
             >
-              <div className="flex items-start justify-between mb-3">
-                <h3 className="font-semibold text-base text-gray-900 dark:text-white">{topic.name}</h3>
-                <div className={`font-medium text-sm px-3 py-1 rounded-full ${
+              <div className="flex items-start justify-between mb-4">
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-white">{topic.name}</h3>
+                <div className={`font-medium text-sm px-3 py-1.5 rounded-full ${
                   topic.status === "critical" ? "bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400" :
                   topic.status === "warning" ? "bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-400" :
                   "bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400"
@@ -54,9 +54,9 @@ export function ImpactVisualization({ topics }: ImpactVisualizationProps) {
                 </div>
               </div>
 
-              <div className="space-y-2">
+              <div className="space-y-3">
                 {/* Bus Factor Change */}
-                <div className="flex items-center gap-2 text-sm">
+                <div className="flex items-center gap-2 text-base">
                   <span className="text-gray-600 dark:text-gray-400 font-medium">Bus Factor:</span>
                   {topic.previousBusFactor !== undefined ? (
                     <div className="flex items-center gap-2">
@@ -75,7 +75,7 @@ export function ImpactVisualization({ topics }: ImpactVisualizationProps) {
 
                 {/* Knowledge Loss Indicator */}
                 {knowledgeLoss > 0 && (
-                  <div className="flex items-center gap-2 text-sm bg-red-50 dark:bg-red-900/20 px-3 py-1.5 rounded-lg border border-red-200 dark:border-red-900/50">
+                  <div className="flex items-center gap-2 text-base bg-red-50 dark:bg-red-900/20 px-4 py-2.5 rounded-lg border border-red-200 dark:border-red-900/50">
                     <span className="text-red-600 dark:text-red-400">↓</span>
                     <span className="font-medium text-red-700 dark:text-red-400">
                       {knowledgeLoss}% knowledge loss

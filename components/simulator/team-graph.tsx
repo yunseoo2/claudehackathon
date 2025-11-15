@@ -181,7 +181,7 @@ export default function TeamGraph({ departments, teams, people }: { departments:
                     return (
                       <g
                         key={n.id}
-                        transform={`translate(${pos.x},${pos.y}) scale(${hovered ? 1.05 : 1})`}
+                        transform={`translate(${pos.x},${pos.y})`}
                         className="cursor-pointer transition-all duration-200"
                         onClick={() => router.push(`/simulator/person/${n.id}`)}
                         tabIndex={0}
@@ -190,15 +190,6 @@ export default function TeamGraph({ departments, teams, people }: { departments:
                         onMouseEnter={() => setHoveredId(n.id!)}
                         onMouseLeave={() => setHoveredId(null)}
                       >
-                        {/* Background gradient for shine effect */}
-                        <defs>
-                          <linearGradient id={`shine-${n.id}`} x1="0%" y1="0%" x2="100%" y2="100%">
-                            <stop offset="0%" stopColor="#dbeafe" stopOpacity={hovered ? 0.6 : 0} />
-                            <stop offset="50%" stopColor="#bfdbfe" stopOpacity={hovered ? 0.8 : 0} />
-                            <stop offset="100%" stopColor="#dbeafe" stopOpacity={hovered ? 0.6 : 0} />
-                          </linearGradient>
-                        </defs>
-
                         {/* Main rectangle */}
                         <rect
                           x={-nodeW / 2}
@@ -211,19 +202,6 @@ export default function TeamGraph({ departments, teams, people }: { departments:
                           strokeWidth={hovered ? 2.5 : 1.5}
                           className="transition-all duration-200 fill-white dark:fill-dark-800 stroke-slate-300 dark:stroke-slate-600"
                         />
-
-                        {/* Shine overlay */}
-                        {hovered && (
-                          <rect
-                            x={-nodeW / 2}
-                            y={-nodeH / 2}
-                            width={nodeW}
-                            height={nodeH}
-                            rx={12}
-                            fill={`url(#shine-${n.id})`}
-                            className="animate-shine"
-                          />
-                        )}
 
                         <text y={-8} textAnchor="middle" fontSize={14} fontWeight={600} fill={hovered ? "#1e40af" : "currentColor"} className="dark:fill-blue-100 fill-slate-900">{n.name}</text>
                         <text y={12} textAnchor="middle" fontSize={12} fill={hovered ? "#3b82f6" : "currentColor"} className="dark:fill-slate-400 fill-slate-600">{n.role}</text>
