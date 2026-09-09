@@ -30,7 +30,7 @@ Continuum is a comprehensive platform designed to enhance organizational knowled
 
 ```bash
 # Clone and install dependencies
-git clone <your-repo-url>
+git clone https://github.com/yunseoo2/claudehackathon
 cd claudehackathon
 yarn install
 
